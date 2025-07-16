@@ -3,6 +3,7 @@
 
 const bcrypt = require('bcryptjs');
 const User = require('./user.model');
+const Branch = require('../branch/branch.model');
 const { ROLES, STATUS } = require('../../core/constants');
 
 // Create User
@@ -16,6 +17,11 @@ exports.createUser = async (req, res, next) => {
     const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
     if (password !== confirm_password) {
       return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+    }
+    // Check branch_id exists and is not deleted
+    const branch = await Branch.findOne({ where: { branch_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
+    if (!branch) {
+      return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
