@@ -9,8 +9,8 @@ const { validate } = require('../../core/utils/validator');
 const { authenticate } = require('../../core/middleware/auth.middleware');
 
 router.post('/',authenticate, userValidator.createUser, validate, userController.createUser);
-router.get('/',authenticate, userController.fetchUserList);
-router.get('/:id',authenticate, userController.fetchUserById);
+router.get('/',authenticate, userValidator.fetchUserList, validate, userController.fetchUserList);
+router.get('/:id',authenticate, userValidator.fetchUserById, validate, userController.fetchUserById);
 router.put('/:id',authenticate, userValidator.updateUser, validate, userController.updateUser);
 router.delete('/:id',authenticate, userController.deleteUser);
 router.put('/status/:id',authenticate, userController.changeStatus);

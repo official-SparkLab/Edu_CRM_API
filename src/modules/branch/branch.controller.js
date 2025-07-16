@@ -11,6 +11,12 @@ exports.createBranch = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can create branches.' });
     }
+    if (req.user.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can create branches.' });
+    }
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can create branches..' });
+    }
     // Block if added_by (session user) is deleted
     const User = require('../users/user.model');
     const addedByUser = await User.findByPk(req.user.reg_id);
@@ -45,6 +51,12 @@ exports.updateBranch = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can update branches.' });
     }
+    if (req.user.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update branches.' });
+    }
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update branches..' });
+    }
     const { branch_name, branch_code, institute_name, email, phone, alternative_phone, address, district, state, pincode, established_date } = req.body;
     const branch_id = req.params.id;
     const branch = await Branch.findByPk(branch_id);
@@ -77,6 +89,12 @@ exports.fetchBranchList = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can view branches.' });
     }
+    if (req.user.status === STATUS.ACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches.' });
+    }
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches..' });
+    }
     const branches = await Branch.findAll({ where: { status: { [Op.ne]: 2 } } });
     res.json({ success: true, data: branches });
   } catch (err) {
@@ -87,6 +105,15 @@ exports.fetchBranchList = async (req, res, next) => {
 // Delete Branch
 exports.deleteBranch = async (req, res, next) => {
   try {
+    if (req.user.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super Admin can delete branches.' });
+    }
+    if (req.user.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete branches.' });
+    }
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete branches..' });
+    }
     const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id, status: { [Op.ne]: '2' } } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
     await branch.update({ status: '2' });
@@ -97,27 +124,17 @@ exports.deleteBranch = async (req, res, next) => {
 };
 
 // Update Status
-exports.updateStatus = async (req, res, next) => {
+exports.changeStatus = async (req, res, next) => {
   try {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can update branch status.' });
     }
-    const { branch_id, status } = req.body;
-    const branch = await Branch.findByPk(branch_id);
-    if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
-    if (branch.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Cannot update status of a deleted branch.' });
+    if (req.user.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update branch status.' });
     }
-    branch.status = status;
-    await branch.save();
-    res.json({ success: true, data: branch });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.changeStatus = async (req, res, next) => {
-  try {
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update branch status..' });
+    }
     const { status } = req.body;
     const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
@@ -131,6 +148,15 @@ exports.changeStatus = async (req, res, next) => {
 
 exports.fetchBranchById = async (req, res, next) => {
   try {
+    if (req.user.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super Admin can view branches.' });
+    }
+    if (req.user.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches.' });
+    }
+    if (req.user.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches..' });
+    }
     const branch = await Branch.findOne({ where: { branch_id: req.params.id, status: { [Op.ne]: 2 } } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
     res.json({ success: true, data: branch });

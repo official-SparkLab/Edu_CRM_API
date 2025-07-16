@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path'); // ✅ Add this line
 const errorHandler = require('./core/error-handler');
 const oasGenerator = require('express-oas-generator');
 const multer = require('multer');
@@ -31,9 +32,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Support urlencoded form data
-app.use(upload.none()); // Support multipart/form-data without files
+// app.use(upload.none()); // Support multipart/form-data without files
 app.use(cookieParser());
 app.use(morgan('dev'));
+
+// ✅ Serve uploaded files publicly
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);

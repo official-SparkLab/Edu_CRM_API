@@ -15,6 +15,12 @@ exports.createUser = async (req, res, next) => {
     if (!addedByUser || addedByUser.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
     }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
     if (password !== confirm_password) {
       return res.status(400).json({ success: false, message: 'Passwords do not match.' });
@@ -44,6 +50,16 @@ exports.createUser = async (req, res, next) => {
 // Update User
 exports.updateUser = async (req, res, next) => {
   try {
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
     const reg_id = req.params.id;
     const user = await User.findByPk(reg_id);
@@ -71,6 +87,16 @@ exports.updateUser = async (req, res, next) => {
 // Fetch User List
 exports.fetchUserList = async (req, res, next) => {
   try {
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const branch_id = req.body.branch_id || req.user.branch_id;
     if (!branch_id) {
       return res.status(400).json({ success: false, message: 'branch_id is required.' });
@@ -85,6 +111,16 @@ exports.fetchUserList = async (req, res, next) => {
 // Delete User
 exports.deleteUser = async (req, res, next) => {
   try {
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id, status: { [Op.ne]: '2' } } });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     await user.update({ status: '2' });
@@ -95,24 +131,18 @@ exports.deleteUser = async (req, res, next) => {
 };
 
 // Update Status
-exports.updateStatus = async (req, res, next) => {
-  try {
-    const { reg_id, status } = req.body;
-    const user = await User.findByPk(reg_id);
-    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
-    if (user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Cannot update status of a deleted user.' });
-    }
-    user.status = status;
-    await user.save();
-    res.json({ success: true, data: user });
-  } catch (err) {
-    next(err);
-  }
-};
-
 exports.changeStatus = async (req, res, next) => {
   try {
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const { status } = req.body;
     const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id } });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
@@ -126,6 +156,16 @@ exports.changeStatus = async (req, res, next) => {
 
 exports.fetchUserById = async (req, res, next) => {
   try {
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.status === STATUS.DELETE) {
+      return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
+      return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
+    }
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: 2 } } });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     res.json({ success: true, data: user });

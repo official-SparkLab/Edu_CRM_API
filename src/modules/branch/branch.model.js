@@ -24,11 +24,13 @@ const Branch = db.define('Branch', {
   },
   email: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
   phone: {
     type: DataTypes.BIGINT(12),
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
   alternative_phone: {
     type: DataTypes.BIGINT(12),
@@ -55,12 +57,18 @@ const Branch = db.define('Branch', {
     allowNull: false
   },
   status: {
-    type: DataTypes.STRING(255),
-    defaultValue: 'active'
+    type: DataTypes.INTEGER,
+    defaultValue: 1
   },
   added_by: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    references: {
+      model: 'tbl_registration',
+      key: 'reg_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   created_at: {
     type: DataTypes.DATE,

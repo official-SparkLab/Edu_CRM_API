@@ -16,7 +16,8 @@ const User = db.define('User', {
   },
   contact: {
     type: DataTypes.BIGINT(12),
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
   email: {
     type: DataTypes.STRING(255),
@@ -47,7 +48,13 @@ const User = db.define('User', {
   },
   added_by: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    references: {
+      model: 'tbl_registration',
+      key: 'reg_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   created_at: {
     type: DataTypes.DATE,

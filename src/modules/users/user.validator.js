@@ -25,8 +25,16 @@ const updateUser = [
 
 const deleteUser = [];
 
+const fetchUserList = [
+  body('branch_id').optional().notEmpty().isNumeric().withMessage('Branch ID is required and must be numeric'),
+];
+
+const fetchUserById = [
+  body('branch_id').optional().notEmpty().isNumeric().withMessage('Branch ID is required and must be numeric'),
+];
+
 const updateStatus = [
   body('status').notEmpty().isNumeric().withMessage('Status is required and must be numeric'),
 ];
 
-module.exports = { createUser, updateUser, deleteUser, updateStatus }; 
+module.exports = { createUser, updateUser, deleteUser, fetchUserList, fetchUserById, updateStatus }; 

@@ -2,16 +2,16 @@ const { DataTypes } = require('sequelize');
 const db = require('../../config/db');
 
 const Institute = db.define('Institute', {
-  inst_id: {
+  institute_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
-  inst_name: {
+  institute_name: {
     type: DataTypes.STRING(500),
     allowNull: false
   },
-  reg_no: {
+  registration_no: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
@@ -27,7 +27,7 @@ const Institute = db.define('Institute', {
     type: DataTypes.BIGINT(12),
     allowNull: false
   },
-  alt_phone: {
+  alternative_phone: {
     type: DataTypes.BIGINT(12),
     allowNull: true
   },
@@ -35,7 +35,7 @@ const Institute = db.define('Institute', {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  Dist: {
+  dist: {
     type: DataTypes.STRING(255),
     allowNull: true
   },
@@ -43,7 +43,7 @@ const Institute = db.define('Institute', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-  pin_no: {
+  pincode: {
     type: DataTypes.STRING(100),
     allowNull: false
   },
@@ -51,11 +51,11 @@ const Institute = db.define('Institute', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  estd_year: {
+  established_year: {
     type: DataTypes.DATEONLY,
     allowNull: false
   },
-  director: {
+  director_name: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
@@ -65,7 +65,13 @@ const Institute = db.define('Institute', {
   },
   added_by: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    references: {
+      model: 'tbl_registration',
+      key: 'reg_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   created_at: {
     type: DataTypes.DATE,

@@ -29,7 +29,13 @@ const Section = db.define('Section', {
   },
   added_by: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    references: {
+      model: 'tbl_registration',
+      key: 'reg_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   created_at: {
     type: DataTypes.DATE,
