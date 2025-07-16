@@ -31,13 +31,31 @@ fs
     db[model.name] = model;
   });
 
+// After loading all models, define associations if present
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
 });
 
+// Define associations after all models are loaded
+if (db.User && db.Branch) {
+  db.User.belongsTo(db.Branch, { foreignKey: 'branch_id', as: 'branch' });
+  db.Branch.hasMany(db.User, { foreignKey: 'branch_id', as: 'users' });
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+// Add Sequelize sync logic to auto-create DB and tables
+if (process.env.NODE_ENV !== 'test') {
+  db.sequelize.sync({ force: false, alter: true })
+    .then(() => {
+      console.log('Database & tables synced!');
+    })
+    .catch((err) => {
+      console.error('Sequelize sync error:', err);
+    });
+}
 
 module.exports = db;

@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./user.model');
 const Branch = require('../branch/branch.model');
 const { ROLES, STATUS } = require('../../core/constants');
+const { Op } = require('sequelize');
 
 // Create User
 exports.createUser = async (req, res, next) => {
@@ -43,7 +44,8 @@ exports.createUser = async (req, res, next) => {
 // Update User
 exports.updateUser = async (req, res, next) => {
   try {
-    const { reg_id, user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
+    const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
+    const reg_id = req.params.id;
     const user = await User.findByPk(reg_id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     if (user.status === STATUS.DELETE) {
@@ -73,7 +75,7 @@ exports.fetchUserList = async (req, res, next) => {
     if (!branch_id) {
       return res.status(400).json({ success: false, message: 'branch_id is required.' });
     }
-    const users = await User.findAll({ where: { branch_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
+    const users = await User.findAll({ where: { branch_id, status: { [Op.ne]: 2 } } });
     res.json({ success: true, data: users });
   } catch (err) {
     next(err);
@@ -83,12 +85,10 @@ exports.fetchUserList = async (req, res, next) => {
 // Delete User
 exports.deleteUser = async (req, res, next) => {
   try {
-    const { reg_id } = req.body;
-    const user = await User.findByPk(reg_id);
+    const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id, status: { [Op.ne]: '2' } } });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
-    user.status = STATUS.DELETE;
-    await user.save();
-    res.json({ success: true, message: 'User deleted (soft delete).' });
+    await user.update({ status: '2' });
+    res.json({ success: true, message: 'User soft deleted (status=2).' });
   } catch (err) {
     next(err);
   }
@@ -105,6 +105,29 @@ exports.updateStatus = async (req, res, next) => {
     }
     user.status = status;
     await user.save();
+    res.json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.changeStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id } });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+    user.status = status;
+    await user.save();
+    res.json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.fetchUserById = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: 2 } } });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     res.json({ success: true, data: user });
   } catch (err) {
     next(err);

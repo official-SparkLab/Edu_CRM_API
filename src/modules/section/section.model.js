@@ -1,44 +1,26 @@
-// modules/users/user.model.js
-// Sequelize model for User (registration)
-
 const { DataTypes } = require('sequelize');
 const db = require('../../config/db');
 
-const User = db.define('User', {
-  reg_id: {
+const Section = db.define('Section', {
+  section_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
-  user_name: {
+  title: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  contact: {
-    type: DataTypes.BIGINT(12),
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING(255),
-    allowNull: true,
-    unique: true
-  },
-  password: {
+  code: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  branch_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'tbl_branch',
-      key: 'branch_id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+  start_date: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
   },
-  role: {
-    type: DataTypes.INTEGER,
+  end_date: {
+    type: DataTypes.DATEONLY,
     allowNull: false
   },
   status: {
@@ -47,7 +29,7 @@ const User = db.define('User', {
   },
   added_by: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: false
   },
   created_at: {
     type: DataTypes.DATE,
@@ -58,10 +40,10 @@ const User = db.define('User', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: 'tbl_registration',
+  tableName: 'tbl_section',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });
 
-module.exports = User; 
+module.exports = Section; 

@@ -1,36 +1,33 @@
-// modules/branch/branch.model.js
-// Sequelize model for Branch Master
-
 const { DataTypes } = require('sequelize');
 const db = require('../../config/db');
 
-const Branch = db.define('Branch', {
-  branch_id: {
+const Institute = db.define('Institute', {
+  inst_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
-  branch_name: {
+  inst_name: {
+    type: DataTypes.STRING(500),
+    allowNull: false
+  },
+  reg_no: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  branch_code: {
+  gst_no: {
     type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  institute_name: {
-    type: DataTypes.STRING(500),
-    allowNull: true
+    allowNull: false
   },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  phone: {
+  phone_no: {
     type: DataTypes.BIGINT(12),
     allowNull: false
   },
-  alternative_phone: {
+  alt_phone: {
     type: DataTypes.BIGINT(12),
     allowNull: true
   },
@@ -38,7 +35,7 @@ const Branch = db.define('Branch', {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  district: {
+  Dist: {
     type: DataTypes.STRING(255),
     allowNull: true
   },
@@ -46,12 +43,20 @@ const Branch = db.define('Branch', {
     type: DataTypes.STRING(255),
     allowNull: true
   },
-  pincode: {
+  pin_no: {
     type: DataTypes.STRING(100),
     allowNull: false
   },
-  established_date: {
+  logo: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  estd_year: {
     type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  director: {
+    type: DataTypes.STRING(255),
     allowNull: false
   },
   status: {
@@ -71,10 +76,10 @@ const Branch = db.define('Branch', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: 'tbl_branch',
+  tableName: 'tbl_institute',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });
 
-module.exports = Branch; 
+module.exports = Institute; 

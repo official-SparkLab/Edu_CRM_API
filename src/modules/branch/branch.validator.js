@@ -13,15 +13,17 @@ const createBranch = [
 ];
 
 const updateBranch = [
-  body('branch_id').notEmpty().isNumeric().withMessage('Branch ID is required'),
+  body('branch_name').optional().notEmpty().withMessage('Branch name is required'),
+  body('email').optional().isEmail().withMessage('Valid email is required'),
+  body('phone').optional().notEmpty().withMessage('Phone is required'),
+  body('address').optional().notEmpty().withMessage('Address is required'),
+  body('pincode').optional().notEmpty().isNumeric().withMessage('Pincode is required and must be numeric'),
+  body('established_date').optional().notEmpty().withMessage('Established date is required'),
 ];
 
-const deleteBranch = [
-  body('branch_id').notEmpty().isNumeric().withMessage('Branch ID is required'),
-];
+const deleteBranch = [];
 
 const updateStatus = [
-  body('branch_id').notEmpty().isNumeric().withMessage('Branch ID is required'),
   body('status').notEmpty().isNumeric().withMessage('Status is required and must be numeric'),
 ];
 

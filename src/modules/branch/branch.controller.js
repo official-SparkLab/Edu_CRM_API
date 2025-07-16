@@ -3,6 +3,7 @@
 
 const Branch = require('./branch.model');
 const { STATUS, ROLES } = require('../../core/constants');
+const { Op } = require('sequelize');
 
 // Create Branch
 exports.createBranch = async (req, res, next) => {
@@ -44,7 +45,8 @@ exports.updateBranch = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can update branches.' });
     }
-    const { branch_id, branch_name, branch_code, institute_name, email, phone, alternative_phone, address, district, state, pincode, established_date } = req.body;
+    const { branch_name, branch_code, institute_name, email, phone, alternative_phone, address, district, state, pincode, established_date } = req.body;
+    const branch_id = req.params.id;
     const branch = await Branch.findByPk(branch_id);
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
     if (branch.status === STATUS.DELETE) {
@@ -75,7 +77,7 @@ exports.fetchBranchList = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can view branches.' });
     }
-    const branches = await Branch.findAll({ where: { status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
+    const branches = await Branch.findAll({ where: { status: { [Op.ne]: 2 } } });
     res.json({ success: true, data: branches });
   } catch (err) {
     next(err);
@@ -85,15 +87,10 @@ exports.fetchBranchList = async (req, res, next) => {
 // Delete Branch
 exports.deleteBranch = async (req, res, next) => {
   try {
-    if (req.user.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super Admin can delete branches.' });
-    }
-    const { branch_id } = req.body;
-    const branch = await Branch.findByPk(branch_id);
+    const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id, status: { [Op.ne]: '2' } } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
-    branch.status = STATUS.DELETE;
-    await branch.save();
-    res.json({ success: true, message: 'Branch deleted (soft delete).' });
+    await branch.update({ status: '2' });
+    res.json({ success: true, message: 'Branch soft deleted (status=2).' });
   } catch (err) {
     next(err);
   }
@@ -113,6 +110,29 @@ exports.updateStatus = async (req, res, next) => {
     }
     branch.status = status;
     await branch.save();
+    res.json({ success: true, data: branch });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.changeStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id } });
+    if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
+    branch.status = status;
+    await branch.save();
+    res.json({ success: true, data: branch });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.fetchBranchById = async (req, res, next) => {
+  try {
+    const branch = await Branch.findOne({ where: { branch_id: req.params.id, status: { [Op.ne]: 2 } } });
+    if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
     res.json({ success: true, data: branch });
   } catch (err) {
     next(err);

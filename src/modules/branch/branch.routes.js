@@ -3,20 +3,16 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../../core/middleware/auth.middleware');
 const branchController = require('./branch.controller');
 const branchValidator = require('./branch.validator');
 const { validate } = require('../../core/utils/validator');
+const { authenticate } = require('../../core/middleware/auth.middleware');
 
-// Create Branch
-router.post('/', authenticate, branchValidator.createBranch, validate, branchController.createBranch);
-// Update Branch
-router.put('/', authenticate, branchValidator.updateBranch, validate, branchController.updateBranch);
-// Fetch Branch List
-router.get('/', authenticate, branchController.fetchBranchList);
-// Delete Branch
-router.delete('/', authenticate, branchValidator.deleteBranch, validate, branchController.deleteBranch);
-// Update Status
-router.put('/status', authenticate, branchValidator.updateStatus, validate, branchController.updateStatus);
+router.post('/',authenticate, branchValidator.createBranch, validate, branchController.createBranch);
+router.get('/',authenticate, branchController.fetchBranchList);
+router.get('/:id',authenticate, branchController.fetchBranchById);
+router.put('/:id',authenticate, branchValidator.updateBranch, validate, branchController.updateBranch);
+router.delete('/:id',authenticate, branchController.deleteBranch);
+router.put('/status/:id',authenticate, branchController.changeStatus);
 
 module.exports = router; 
