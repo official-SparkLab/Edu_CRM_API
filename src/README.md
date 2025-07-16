@@ -45,3 +45,15 @@ src/
 ## Notes
 - Use the `/api/auth/super-admin` endpoint to create the first Super Admin.
 - All other endpoints require authentication. 
+
+PORT=4000
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=
+DB_NAME=crm
+JWT_SECRET=supersecretkey
+JWT_EXPIRES_IN=1h
+COOKIE_NAME=auth_token
+COOKIE_SECURE=false       # set to true in production (HTTPS)
+COOKIE_SAMESITE=lax        # or 'none' for cross-site, with secure=true
+NODE_ENV=development
