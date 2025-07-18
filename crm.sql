@@ -121,3 +121,91 @@ CREATE TABLE IF NOT EXISTS tbl_course (
   CONSTRAINT fk_course_branch FOREIGN KEY (branch_id) REFERENCES tbl_branch(branch_id) ON UPDATE CASCADE ON DELETE SET NULL,
   CONSTRAINT fk_course_added_by FOREIGN KEY (added_by) REFERENCES tbl_registration(reg_id) ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
+
+
+CREATE TABLE `tbl_batch` (
+  `batch_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `batch_name` VARCHAR(255) NOT NULL,
+  `batch_code` VARCHAR(255) NOT NULL,
+  `course_id` INT NOT NULL,
+  `batch_time` VARCHAR(255) NOT NULL,
+  `start_date` DATETIME DEFAULT NULL,
+  `teacher_name` VARCHAR(255) NOT NULL,
+  `status` INT DEFAULT 1,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  -- Foreign Keys
+  CONSTRAINT `fk_batch_branch`
+    FOREIGN KEY (`branch_id`)
+    REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_batch_added_by`
+    FOREIGN KEY (`added_by`)
+    REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `tbl_service` (
+  `service_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `service_name` VARCHAR(255) NOT NULL,
+  `service_details` TEXT NOT NULL,
+  `status` INT DEFAULT 1,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  -- Foreign Keys
+  CONSTRAINT `fk_service_branch`
+    FOREIGN KEY (`branch_id`)
+    REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_service_added_by`
+    FOREIGN KEY (`added_by`)
+    REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE `tbl_enquiry` (
+  `enquiry_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `courses` TEXT NOT NULL,
+  `full_name` VARCHAR(255) NOT NULL,
+  `gender` VARCHAR(255) NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `contact` BIGINT NOT NULL,
+  `address` TEXT NOT NULL,
+  `college_name` VARCHAR(255) NOT NULL,
+  `department` VARCHAR(255) NOT NULL,
+  `enquiry_date` DATETIME NOT NULL,
+  `reference` VARCHAR(255) NOT NULL,
+  `source` VARCHAR(255) NOT NULL,
+  `status` INT DEFAULT 1,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  -- Foreign Keys
+  CONSTRAINT `fk_enquiry_branch`
+    FOREIGN KEY (`branch_id`)
+    REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_enquiry_added_by`
+    FOREIGN KEY (`added_by`)
+    REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

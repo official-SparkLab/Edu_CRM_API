@@ -5,7 +5,10 @@ const courseValidator = require('./course.validator');
 const { validate } = require('../../core/utils/validator');
 const { authenticate } = require('../../core/middleware/auth.middleware');
 
-router.post('/',authenticate, courseValidator.createCourse, validate, courseController.createCourse);
+const multer = require('multer');
+const upload = multer(); // handles multipart/form-data with only text fields
+
+router.post('/',authenticate, upload.none(), courseValidator.createCourse, validate, courseController.createCourse);
 router.get('/',authenticate, courseValidator.fetchCourse, validate, courseController.getCourse);
 router.get('/:id',authenticate, courseController.getCourseById);
 router.put('/:id',authenticate, courseValidator.updateCourse, validate, courseController.updateCourse);

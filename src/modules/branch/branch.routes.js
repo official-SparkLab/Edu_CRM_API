@@ -8,7 +8,10 @@ const branchValidator = require('./branch.validator');
 const { validate } = require('../../core/utils/validator');
 const { authenticate } = require('../../core/middleware/auth.middleware');
 
-router.post('/',authenticate, branchValidator.createBranch, validate, branchController.createBranch);
+const multer = require('multer');
+const upload = multer(); // handles multipart/form-data with only text fields
+
+router.post('/',authenticate, upload.none(), branchValidator.createBranch, validate, branchController.createBranch);
 router.get('/',authenticate, branchController.fetchBranchList);
 router.get('/:id',authenticate, branchController.fetchBranchById);
 router.put('/:id',authenticate, branchValidator.updateBranch, validate, branchController.updateBranch);
