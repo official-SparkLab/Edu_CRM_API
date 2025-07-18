@@ -44,7 +44,7 @@ const User = db.define('User', {
   },
   status: {
     type: DataTypes.STRING(255),
-    defaultValue: 'active'
+    defaultValue: 1
   },
   added_by: {
     type: DataTypes.INTEGER,

@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5000;
   try {
     await db.authenticate();
     console.log('Database connected successfully.');
-    await db.sync();
-    console.log('All tables created (if they did not exist).');
+    // await db.sync();
+    // console.log('All tables created (if they did not exist).');
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

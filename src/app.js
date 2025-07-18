@@ -18,6 +18,7 @@ const userRoutes = require('./modules/users/user.routes');
 const branchRoutes = require('./modules/branch/branch.routes');
 const instituteRoutes = require('./modules/institute/institute.routes');
 const sectionRoutes = require('./modules/section/section.routes');
+const courseRoutes = require('./modules/course/course.routes');
 
 const app = express();
 
@@ -45,6 +46,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/branch', branchRoutes);
 app.use('/api/institutes', instituteRoutes);
 app.use('/api/sections', sectionRoutes);
+app.use('/api/courses', courseRoutes); // Course routes
+
 
 // Swagger docs available at /api-docs
 

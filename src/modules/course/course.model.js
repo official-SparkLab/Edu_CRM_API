@@ -1,67 +1,53 @@
 const { DataTypes } = require('sequelize');
 const db = require('../../config/db');
 
-const Institute = db.define('Institute', {
-  institute_id: {
+const Course = db.define('Course', {
+  course_id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
   },
-  institute_name: {
-    type: DataTypes.STRING(500),
-    allowNull: false
-  },
-  registration_no: {
+  course_name: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  gst_no: {
+  course_code: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  email: {
+  duration: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
-  phone_no: {
-    type: DataTypes.BIGINT(12),
+  fees: {
+    type: DataTypes.STRING(255),
     allowNull: false
   },
-  alternative_phone: {
-    type: DataTypes.BIGINT(12),
-    allowNull: true
-  },
-  address: {
+  subject: {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  dist: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  state: {
-    type: DataTypes.STRING(255),
-    allowNull: true
-  },
-  pincode: {
-    type: DataTypes.STRING(100),
-    allowNull: false
-  },
-  logo: {
+  description: {
     type: DataTypes.TEXT,
-    allowNull: true
-  },
-  established_year: {
-    type: DataTypes.DATEONLY,
     allowNull: false
   },
-  director_name: {
+  certificate_offered: {
     type: DataTypes.STRING(255),
     allowNull: false
   },
   status: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.INTEGER,
     defaultValue: 1
+  },
+  branch_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tbl_branch',
+      key: 'branch_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   added_by: {
     type: DataTypes.INTEGER,
@@ -82,10 +68,10 @@ const Institute = db.define('Institute', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: 'tbl_institute',
+  tableName: 'tbl_course',
   timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at'
 });
 
-module.exports = Institute; 
+module.exports = Course; 

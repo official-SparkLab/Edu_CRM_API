@@ -49,7 +49,7 @@ db.Sequelize = Sequelize;
 
 // Add Sequelize sync logic to auto-create DB and tables
 if (process.env.NODE_ENV !== 'test') {
-  db.sequelize.sync({ force: false, alter: true })
+  db.sequelize.sync({ force: false, alter: false })
     .then(() => {
       console.log('Database & tables synced!');
     })

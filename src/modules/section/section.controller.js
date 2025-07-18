@@ -7,13 +7,24 @@ exports.createSection = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can create section.' });
     }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can create section.' });
     }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can create section..' });
+
+    const sectionData = { ...req.body };
+
+    const User = require('../users/user.model');
+    const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
     }
-    const section = await Section.create(req.body);
+
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(addedByUser.status)) {
+      return res.status(403).json({ success: false, message: 'Inactive or deleted users cannot create an institute.' });
+    }
+    sectionData.added_by = req.user.reg_id; // Set added_by to current user
+
+    const section = await Section.create(sectionData);
     res.status(201).json({ success: true, data: section });
   } catch (err) {
     next(err);
@@ -25,11 +36,8 @@ exports.getSections = async (req, res, next) => {
     // if (req.user.role !== ROLES.SUPER_ADMIN) {
     //   return res.status(403).json({ success: false, message: 'Only Super Admin can view section.' });
     // }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view section.' });
-    }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active User can view section..' });
     }
     const sections = await Section.findAll({ where: { status: { [Op.ne]: 2 } } });
     res.json({ success: true, data: sections });
@@ -43,11 +51,8 @@ exports.getSectionById = async (req, res, next) => {
     // if (req.user.role !== ROLES.SUPER_ADMIN) {
     //   return res.status(403).json({ success: false, message: 'Only Super Admin can view section.' });
     // }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view section.' });
-    }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active User can view section..' });
     }
     const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: 2 } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
@@ -62,11 +67,8 @@ exports.updateSection = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can update section.' });
     }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can update section.' });
-    }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update section..' });
     }
     const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: '2' } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
@@ -82,11 +84,8 @@ exports.deleteSection = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can delete section.' });
     }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete section.' });
-    }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete section..' });
     }
     const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: '2' } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
@@ -102,11 +101,8 @@ exports.changeStatus = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can change section status.' });
     }
-    if (req.user.status === STATUS.INACTIVE) {
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can change section status.' });
-    }
-    if (req.user.status === STATUS.DELETE) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can change section status..' });
     }
     const { status } = req.body;
     const section = await Section.findOne({ where: { section_id: req.params.id } });
