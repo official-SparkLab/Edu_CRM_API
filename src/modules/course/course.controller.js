@@ -80,11 +80,11 @@ exports.getCourseById = async (req, res, next) => {
 
 exports.updateCourse = async (req, res, next) => {
   try {
-    if (req.user.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super Admin can update course.' });
-    }
+    // if (req.user.role !== ROLES.SUPER_ADMIN) {
+    //   return res.status(403).json({ success: false, message: 'Only Super Admin can update course.' });
+    // }
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can update course.' });
+      return res.status(403).json({ success: false, message: 'Only Active User can update course.' });
     }
     const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: '2' } } });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
@@ -97,11 +97,11 @@ exports.updateCourse = async (req, res, next) => {
 
 exports.deleteCourse = async (req, res, next) => {
   try {
-    if (req.user.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super Admin can delete course.' });
-    }
+    // if (req.user.role !== ROLES.SUPER_ADMIN) {
+    //   return res.status(403).json({ success: false, message: 'Only Super Admin can delete course.' });
+    // }
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete course.' });
+      return res.status(403).json({ success: false, message: 'Only Active User can delete course.' });
     }
     const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: '2' } } });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
@@ -114,11 +114,11 @@ exports.deleteCourse = async (req, res, next) => {
 
 exports.changeStatus = async (req, res, next) => {
   try {
-    if (req.user.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super Admin can change course status.' });
-    }
+    // if (req.user.role !== ROLES.SUPER_ADMIN) {
+    //   return res.status(403).json({ success: false, message: 'Only Super Admin can change course status.' });
+    // }
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active Super Admin can change course status.' });
+      return res.status(403).json({ success: false, message: 'Only Active User can change course status.' });
     }
     const { status } = req.body;
     const course = await Course.findOne({ where: { course_id: req.params.id } });

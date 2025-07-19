@@ -9,9 +9,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path'); // ✅ Add this line
 const errorHandler = require('./core/error-handler');
-//const oasGenerator = require('express-oas-generator');
+// const oasGenerator = require('express-oas-generator');
 const multer = require('multer');
-const upload = multer();
+// const upload = multer();
 
 const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/user.routes');
@@ -19,11 +19,14 @@ const branchRoutes = require('./modules/branch/branch.routes');
 const instituteRoutes = require('./modules/institute/institute.routes');
 const sectionRoutes = require('./modules/section/section.routes');
 const courseRoutes = require('./modules/course/course.routes');
+const batchRoutes = require('./modules/batch/batch.routes');
+const serviceRoutes = require('./modules/service/service.routes');
+const enquiryRoutes = require('./modules/enquiry/enquiry.routes');
 
 const app = express();
 
 // Initialize express-oas-generator before routes
-//oasGenerator.init(app, {});
+// oasGenerator.init(app, {});
 
 // Middleware
 app.use(helmet()); // Security headers
@@ -44,10 +47,16 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/branch', branchRoutes);
-app.use('/api/institutes', instituteRoutes);
-app.use('/api/sections', sectionRoutes);
-app.use('/api/courses', courseRoutes); // Course routes
+app.use('/api/institute', instituteRoutes);
+app.use('/api/section', sectionRoutes);
+app.use('/api/course', courseRoutes); // Course routes
+app.use('/api/batch', batchRoutes); // Batch routes
+app.use('/api/service', serviceRoutes); // Service routes
+app.use('/api/enquiry', enquiryRoutes); // Enquiry routes
 
+app.get('/base', (req, res) => {
+  res.send('Node.js base working!');
+});
 
 // Swagger docs available at /api-docs
 

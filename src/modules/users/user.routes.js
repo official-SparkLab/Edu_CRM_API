@@ -8,7 +8,10 @@ const userValidator = require('./user.validator');
 const { validate } = require('../../core/utils/validator');
 const { authenticate } = require('../../core/middleware/auth.middleware');
 
-router.post('/',authenticate, userValidator.createUser, validate, userController.createUser);
+const multer = require('multer');
+const upload = multer(); // handles multipart/form-data with only text fields
+
+router.post('/',authenticate, upload.none(), userValidator.createUser, validate, userController.createUser);
 router.get('/',authenticate, userValidator.fetchUserList, validate, userController.fetchUserList);
 router.get('/:id',authenticate, userValidator.fetchUserById, validate, userController.fetchUserById);
 router.put('/:id',authenticate, userValidator.updateUser, validate, userController.updateUser);
