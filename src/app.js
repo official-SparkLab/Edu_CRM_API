@@ -9,7 +9,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path'); // ✅ Add this line
 const errorHandler = require('./core/error-handler');
-const oasGenerator = require('express-oas-generator');
+//const oasGenerator = require('express-oas-generator');
 const multer = require('multer');
 const upload = multer();
 
@@ -23,7 +23,7 @@ const courseRoutes = require('./modules/course/course.routes');
 const app = express();
 
 // Initialize express-oas-generator before routes
-oasGenerator.init(app, {});
+//oasGenerator.init(app, {});
 
 // Middleware
 app.use(helmet()); // Security headers
