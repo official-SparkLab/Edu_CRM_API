@@ -9,6 +9,7 @@ const sequelize = new Sequelize(
   process.env.DB_PASS || 'sparklabit@123',
   {
     host: process.env.DB_HOST || '103.102.234.200',
+    port: process.env.DB_PORT || '3306',
     dialect: 'mysql',
     logging: false,
     pool: {

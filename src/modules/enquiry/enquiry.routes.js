@@ -9,7 +9,7 @@ const multer = require('multer');
 const upload = multer(); // handles multipart/form-data with only text fields
 
 router.post('/',authenticate, upload.none(), enquiryValidator.createEnquiry, validate, enquiryController.createEnquiry);
-router.get('/',authenticate, enquiryValidator.fetchEnquiry, validate, enquiryController.getEnquiry);
+router.get('/',authenticate, upload.none(), enquiryValidator.fetchEnquiry, validate, enquiryController.getEnquiry);
 router.get('/:id',authenticate, enquiryController.getEnquiryById);
 router.put('/:id',authenticate, enquiryValidator.updateEnquiry, validate, enquiryController.updateEnquiry);
 router.delete('/:id',authenticate, enquiryController.deleteEnquiry);

@@ -3,6 +3,7 @@
 
 const app = require('./app');
 const db = require('./config/db');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 
@@ -17,7 +18,8 @@ const PORT = process.env.PORT || 5000;
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
-    console.error('Unable to connect to the database or sync tables:', error);
-    process.exit(1);
+    console.error('❌ DB connection failed:', error.message);
+  console.error(error); // shows stack trace
+  process.exit(1);
   }
 })(); 

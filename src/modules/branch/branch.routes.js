@@ -16,6 +16,6 @@ router.get('/',authenticate, branchController.fetchBranchList);
 router.get('/:id',authenticate, branchController.fetchBranchById);
 router.put('/:id',authenticate, branchValidator.updateBranch, validate, branchController.updateBranch);
 router.delete('/:id',authenticate, branchController.deleteBranch);
-router.put('/status/:id',authenticate, branchController.changeStatus);
+router.put('/status/:id',authenticate, branchValidator.updateStatus, branchController.changeStatus);
 
 module.exports = router; 
