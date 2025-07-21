@@ -55,6 +55,15 @@ const Enquiry = db.define('Enquiry', {
     type: DataTypes.INTEGER,
     defaultValue: 1
   },
+  enquiry_status: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    defaultValue: 'Pending'
+  },
+  reason: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   branch_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

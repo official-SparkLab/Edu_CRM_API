@@ -55,7 +55,7 @@ exports.getEnquiry = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
     }
     
-    const enquiries = await Enquiry.findAll({ where: { status: { [Op.ne]: 2 }, branch_id:branch_id } });
+    const enquiries = await Enquiry.findAll({ where: { status: { [Op.notIn]: [0, 2] }, branch_id:branch_id } });
     res.json({ success: true, data: enquiries });
   } catch (err) {
     next(err);
@@ -70,7 +70,7 @@ exports.getEnquiryById = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view enquiry.' });
     }
-    const enquiry = await Enquiry.findOne({ where: { enquiry_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const enquiry = await Enquiry.findOne({ where: { enquiry_id: req.params.id, status: { [Op.notIn]: [0, 2] } } });
     if (!enquiry) return res.status(404).json({ success: false, message: 'Enquiry not found' });
     res.json({ success: true, data: enquiry });
   } catch (err) {
@@ -106,7 +106,7 @@ exports.updateEnquiry = async (req, res, next) => {
     }
     enquiryData.added_by = req.user.reg_id; // Set added_by to current user
 
-    const enquiry = await Enquiry.findOne({ where: { enquiry_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const enquiry = await Enquiry.findOne({ where: { enquiry_id: req.params.id, status: { [Op.notIn]: [0, 2] } } });
     if (!enquiry) return res.status(404).json({ success: false, message: 'Enquiry not found' });
     await enquiry.update(enquiryData);
     res.json({ success: true, data: enquiry });
@@ -140,10 +140,11 @@ exports.changeStatus = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can change enquiry status.' });
     }
-    const { status } = req.body;
+    const { enquiry_status, reason } = req.body;
     const enquiry = await Enquiry.findOne({ where: { enquiry_id: req.params.id } });
     if (!enquiry) return res.status(404).json({ success: false, message: 'Enquiry not found' });
-    enquiry.status = status;
+    enquiry.enquiry_status = enquiry_status;
+    enquiry.reason = reason;
     await enquiry.save();
     res.json({ success: true, data: enquiry });
   } catch (err) {

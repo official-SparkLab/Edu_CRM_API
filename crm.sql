@@ -191,6 +191,8 @@ CREATE TABLE `tbl_enquiry` (
   `reference` VARCHAR(255) NOT NULL,
   `source` VARCHAR(255) NOT NULL,
   `status` INT DEFAULT 1,
+  `enquiry_status` VARCHAR(255) NOT NULL DEFAULT 'Pending',
+  `reason` VARCHAR(255) NULL,
   `branch_id` INT DEFAULT NULL,
   `added_by` INT DEFAULT NULL,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

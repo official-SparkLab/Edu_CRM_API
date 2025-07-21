@@ -11,8 +11,8 @@ const upload = multer(); // handles multipart/form-data with only text fields
 router.post('/',authenticate, upload.none(), enquiryValidator.createEnquiry, validate, enquiryController.createEnquiry);
 router.get('/',authenticate, upload.none(), enquiryValidator.fetchEnquiry, validate, enquiryController.getEnquiry);
 router.get('/:id',authenticate, enquiryController.getEnquiryById);
-router.put('/:id',authenticate, enquiryValidator.updateEnquiry, validate, enquiryController.updateEnquiry);
+router.put('/:id',authenticate, upload.none(), enquiryValidator.updateEnquiry, validate, enquiryController.updateEnquiry);
 router.delete('/:id',authenticate, enquiryController.deleteEnquiry);
-// router.put('/status/:id',authenticate,enquiryValidator.updateStatus, validate, enquiryController.changeStatus);
+router.put('/enquiry_status/:id',authenticate, upload.none(), enquiryValidator.updateStatus, validate, enquiryController.changeStatus);
 
 module.exports = router; 

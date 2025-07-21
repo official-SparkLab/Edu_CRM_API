@@ -25,7 +25,7 @@ const fetchEnquiry = [
 ];
 
 const updateStatus = [
-  body('status').notEmpty().isNumeric().withMessage('Status is required and must be numeric'),
+  // body('enquiry_status').notEmpty().withMessage('Enquiry Status is required'),
 ];
 
 module.exports = { createEnquiry, updateEnquiry , fetchEnquiry, updateStatus }; 
