@@ -7,11 +7,14 @@ const { login, createSuperAdmin } = require('./auth.controller');
 const { validateSuperAdmin, validateLogin } = require('./auth.validator');
 const { validate } = require('../../core/utils/validator');
 
+const multer = require('multer');
+const upload = multer(); // handles multipart/form-data with only text fields
+
 // Super Admin creation (no auth required for first setup)
-router.post('/super-admin', validateSuperAdmin, validate, createSuperAdmin);
+router.post('/super-admin', upload.none(), validateSuperAdmin, validate, createSuperAdmin);
 
 // Login
-router.post('/login', validateLogin, validate, login);
+router.post('/login', upload.none(), validateLogin, validate, login);
 
 // Logout
 router.post('/logout', (req, res) => {
