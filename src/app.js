@@ -3,6 +3,7 @@
 // Uses best practices, security middleware, and modular routing
 
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -43,6 +44,15 @@ app.use(morgan('dev'));
 // ✅ Serve uploaded files publicly
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// === 1) GLOBAL RATE LIMITER (apply to all requests) ===
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 100,                  // limit each IP to 100 requests per window
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use(globalLimiter);
+
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -57,6 +67,17 @@ app.use('/api/enquiry', enquiryRoutes); // Enquiry routes
 app.get('/base', (req, res) => {
   res.send('Node.js base working!');
 });
+
+
+app.get('/health', async (req, res) => {
+  try {
+    await db.authenticate();
+    res.json({ status: 'OK', db: 'reachable' });
+  } catch {
+    res.status(503).json({ status: 'DOWN', db: 'unreachable' });
+  }
+});
+
 
 // Swagger docs available at /api-docs
 
