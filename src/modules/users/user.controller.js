@@ -101,7 +101,7 @@ exports.fetchUserList = async (req, res, next) => {
     if (!branch_id) {
       return res.status(400).json({ success: false, message: 'branch_id is required.' });
     }
-    const users = await User.findAll({ where: { branch_id, status: { [Op.ne]: 2 } } });
+    const users = await User.findAll({ where: { branch_id, status: { [Op.ne]: 2 } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
     res.json({ success: true, data: users });
   } catch (err) {
     next(err);
@@ -166,7 +166,7 @@ exports.fetchUserById = async (req, res, next) => {
     if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
     }
-    const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: 2 } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     res.json({ success: true, data: user });
   } catch (err) {

@@ -4,8 +4,8 @@
 module.exports = {
   ROLES: {
     SUPER_ADMIN: 1,
-    ADMIN: 2,
-    USER: 3
+    BRANCH_HEAD: 2,
+    FACULTY: 3
   },
   STATUS: {
     DELETE: 2,
