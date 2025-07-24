@@ -32,7 +32,10 @@ const app = express();
 // Middleware
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: 'http://localhost:3000', // Update as needed
+  origin: (origin, callback) => {
+    callback(null, origin); // Allow all urls for development later change to specific origins
+  },
+  // origin: 'http://localhost:3000', // Update as needed
   credentials: true
 }));
 app.use(express.json());
