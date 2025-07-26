@@ -89,7 +89,7 @@ exports.fetchBranchList = async (req, res, next) => {
     if (req.user.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super Admin can view branches.' });
     }
-    if (req.user.status === STATUS.ACTIVE) {
+    if (req.user.status === STATUS.INACTIVE) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches.' });
     }
     if (req.user.status === STATUS.DELETE) {
