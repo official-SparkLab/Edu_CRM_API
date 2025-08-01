@@ -16,13 +16,18 @@ const multer = require('multer');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/users/user.routes');
+const userFetchRoutes = require('./modules/users/user.fetchRoutes');
 const branchRoutes = require('./modules/branch/branch.routes');
 const instituteRoutes = require('./modules/institute/institute.routes');
 const sectionRoutes = require('./modules/section/section.routes');
 const courseRoutes = require('./modules/course/course.routes');
+const courseFetchRoutes = require('./modules/course/course.fetchRoutes');
 const batchRoutes = require('./modules/batch/batch.routes');
+const batchFetchRoutes = require('./modules/batch/batch.fetchRoutes');
 const serviceRoutes = require('./modules/service/service.routes');
+const serviceFetchRoutes = require('./modules/service/service.fetchRoutes');
 const enquiryRoutes = require('./modules/enquiry/enquiry.routes');
+const enquiryFetchRoutes = require('./modules/enquiry/enquiry.fetchRoutes');
 
 const app = express();
 
@@ -59,13 +64,18 @@ app.use(globalLimiter);
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/user-list', userFetchRoutes);
 app.use('/api/branch', branchRoutes);
 app.use('/api/institute', instituteRoutes);
 app.use('/api/section', sectionRoutes);
 app.use('/api/course', courseRoutes); // Course routes
+app.use('/api/course-list', courseFetchRoutes); // Course routes
 app.use('/api/batch', batchRoutes); // Batch routes
+app.use('/api/batch-list', batchFetchRoutes); // Batch routes
 app.use('/api/service', serviceRoutes); // Service routes
+app.use('/api/service-list', serviceFetchRoutes); // Service Fetch routes
 app.use('/api/enquiry', enquiryRoutes); // Enquiry routes
+app.use('/api/enquiry-list', enquiryFetchRoutes); // Enquiry Fetch routes
 
 app.get('/base', (req, res) => {
   res.send('Node.js base working!');
