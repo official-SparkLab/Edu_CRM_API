@@ -43,8 +43,8 @@ exports.login = async (req, res, next) => {
       token,
       {
         httpOnly: true,
-        secure: process.env.COOKIE_SECURE === 'false',
-        sameSite: process.env.COOKIE_SAMESITE || 'none',
+        secure: process.env.COOKIE_SECURE === 'true',
+        sameSite: process.env.COOKIE_SAMESITE || 'lax',
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         path: '/',
       }
