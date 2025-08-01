@@ -45,7 +45,7 @@ exports.login = async (req, res, next) => {
         httpOnly: true,
         secure: process.env.COOKIE_SECURE === 'false',
         sameSite: process.env.COOKIE_SAMESITE || 'none',
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000, // 1 Day
         path: '/',
       }
     );
