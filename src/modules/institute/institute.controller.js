@@ -1,6 +1,10 @@
 const Institute = require('./institute.model');
 const { STATUS, ROLES } = require('../../core/constants');
 const { Op } = require('sequelize');
+const { getRelativePath } = require("../../core/utils");
+const path = require('path');
+const fs = require('fs');
+
 
 exports.createInstitute = async (req, res, next) => {
   try {
@@ -14,8 +18,11 @@ exports.createInstitute = async (req, res, next) => {
     }
     const instituteData = { ...req.body };
 
+    // if (req.file) {
+    //   instituteData.logo = `uploads/${req.file.filename}`; // Relative path
+    // }
     if (req.file) {
-      instituteData.logo = `uploads/${req.file.filename}`; // Relative path
+      instituteData.logo = getRelativePath("institute", req.file.filename); // Relative path with leading slash
     }
 
     const User = require('../users/user.model');
@@ -77,7 +84,28 @@ exports.updateInstitute = async (req, res, next) => {
     }
     const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: '2' } } });
     if (!institute) return res.status(404).json({ success: false, message: 'Institute not found' });
-    await institute.update(req.body);
+     // whitelist allowed update fields
+    const allowed = [
+      'institute_name','registration_no','gst_no','email','phone_no','alternative_phone',
+      'address','dist','state','pincode','established_year','director_name','status'
+    ];
+    const payload = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) payload[key] = req.body[key];
+    }
+    // If a new file was uploaded, store its relative path in DB.
+    // NOTE: we intentionally do NOT delete the old file — it will remain on disk.
+    if (req.file) {
+      payload.logo = getRelativePath('institute', req.file.filename);
+    }
+
+    // Update and return the institute
+    await institute.update(payload);
+
+
+    // reload to get latest values (optional but useful)
+    await institute.reload();
+    
     res.json({ success: true, data: institute });
   } catch (err) {
     next(err);
