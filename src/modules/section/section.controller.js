@@ -39,7 +39,7 @@ exports.getSections = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view section.' });
     }
-    const sections = await Section.findAll({ where: { status: { [Op.ne]: 2 } } });
+    const sections = await Section.findAll({ where: { status: { [Op.ne]: STATUS.DELETE } } });
     res.json({ success: true, data: sections });
   } catch (err) {
     next(err);
@@ -54,7 +54,7 @@ exports.getSectionById = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view section.' });
     }
-    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
     res.json({ success: true, data: section });
   } catch (err) {
@@ -70,7 +70,7 @@ exports.updateSection = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can update section.' });
     }
-    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
     await section.update(req.body);
     res.json({ success: true, data: section });
@@ -87,10 +87,10 @@ exports.deleteSection = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete section.' });
     }
-    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const section = await Section.findOne({ where: { section_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!section) return res.status(404).json({ success: false, message: 'Section not found' });
-    await section.update({ status: '2' });
-    res.json({ success: true, message: 'Section soft deleted (status=2)' });
+    await section.update({ status: '0' });
+    res.json({ success: true, message: 'Section soft deleted (status=0)' });
   } catch (err) {
     next(err);
   }

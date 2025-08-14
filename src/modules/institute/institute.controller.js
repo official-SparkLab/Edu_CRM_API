@@ -51,7 +51,7 @@ exports.getInstitutes = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can view institute.' });
     }
-    const institutes = await Institute.findAll({ where: { status: { [Op.ne]: 2 } } });
+    const institutes = await Institute.findAll({ where: { status: { [Op.ne]: STATUS.DELETE } } });
     res.json({ success: true, data: institutes });
   } catch (err) {
     next(err);
@@ -66,7 +66,7 @@ exports.getInstituteById = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can view institute.' });
     }
-    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!institute) return res.status(404).json({ success: false, message: 'Institute not found' });
     res.json({ success: true, data: institute });
   } catch (err) {
@@ -82,7 +82,7 @@ exports.updateInstitute = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can update institute.' });
     }
-    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!institute) return res.status(404).json({ success: false, message: 'Institute not found' });
      // whitelist allowed update fields
     const allowed = [
@@ -120,10 +120,10 @@ exports.deleteInstitute = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete institute.' });
     }
-    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const institute = await Institute.findOne({ where: { institute_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!institute) return res.status(404).json({ success: false, message: 'Institute not found' });
-    await institute.update({ status: '2' });
-    res.json({ success: true, message: 'Institute soft deleted (status=2)' });
+    await institute.update({ status: '0' });
+    res.json({ success: true, message: 'Institute soft deleted (status=0)' });
   } catch (err) {
     next(err);
   }

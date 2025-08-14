@@ -13,8 +13,8 @@ const sequelize = new Sequelize(
     dialect: 'mysql',
     logging: false,
     pool: {
-      max: 5,
-      min: 0,
+      max: 15,
+      min: 5,
       acquire: 30000,
       idle: 10000
     } 

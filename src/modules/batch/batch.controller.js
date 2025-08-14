@@ -55,7 +55,7 @@ exports.getBatch = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
     }
     
-    const batches = await Batch.findAll({ where: { status: { [Op.ne]: 2 }, branch_id:branch_id } });
+    const batches = await Batch.findAll({ where: { status: { [Op.ne]: STATUS.DELETE }, branch_id:branch_id } });
     res.json({ success: true, data: batches });
   } catch (err) {
     next(err);
@@ -70,7 +70,7 @@ exports.getBatchById = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view batch.' });
     }
-    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!batch) return res.status(404).json({ success: false, message: 'Batch not found' });
     res.json({ success: true, data: batch });
   } catch (err) {
@@ -106,7 +106,7 @@ exports.updateBatch = async (req, res, next) => {
     }
     batchData.added_by = req.user.reg_id; // Set added_by to current user
 
-    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!batch) return res.status(404).json({ success: false, message: 'Batch not found' });
     await batch.update(batchData);
     res.json({ success: true, data: batch });
@@ -123,10 +123,10 @@ exports.deleteBatch = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can delete batcg.' });
     }
-    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const batch = await Batch.findOne({ where: { batch_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!batch) return res.status(404).json({ success: false, message: 'Batch not found' });
-    await batch.update({ status: '2' });
-    res.json({ success: true, message: 'Batch soft deleted (status=2)' });
+    await batch.update({ status: '0' });
+    res.json({ success: true, message: 'Batch soft deleted (status=0)' });
   } catch (err) {
     next(err);
   }
