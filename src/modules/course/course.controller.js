@@ -55,7 +55,7 @@ exports.getCourse = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
     }
     
-    const courses = await Course.findAll({ where: { status: { [Op.ne]: 2 }, branch_id:branch_id } });
+    const courses = await Course.findAll({ where: { status: { [Op.ne]: STATUS.DELETE }, branch_id:branch_id } });
     res.json({ success: true, data: courses });
   } catch (err) {
     next(err);
@@ -70,7 +70,7 @@ exports.getCourseById = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view course.' });
     }
-    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
     res.json({ success: true, data: course });
   } catch (err) {
@@ -86,7 +86,7 @@ exports.updateCourse = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can update course.' });
     }
-    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
     await course.update(req.body);
     res.json({ success: true, data: course });
@@ -103,10 +103,10 @@ exports.deleteCourse = async (req, res, next) => {
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can delete course.' });
     }
-    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: '2' } } });
+    const course = await Course.findOne({ where: { course_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
-    await course.update({ status: '2' });
-    res.json({ success: true, message: 'Course soft deleted (status=2)' });
+    await course.update({ status: '0' });
+    res.json({ success: true, message: 'Course soft deleted (status=0)' });
   } catch (err) {
     next(err);
   }

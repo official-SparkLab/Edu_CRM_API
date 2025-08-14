@@ -83,12 +83,14 @@ app.get('/base', (req, res) => {
 
 
 app.get('/health', async (req, res) => {
-  try {
-    await db.authenticate();
-    res.json({ status: 'OK', db: 'reachable' });
-  } catch {
-    res.status(503).json({ status: 'DOWN', db: 'unreachable' });
-  }
+  const poolOk = !!(db.connectionManager && db.connectionManager.pool);
+  res.json({ status: poolOk ? 'OK' : 'DOWN' });
+  // try {
+  //   await db.authenticate();
+  //   res.json({ status: 'OK', db: 'reachable' });
+  // } catch {
+  //   res.status(503).json({ status: 'DOWN', db: 'unreachable' });
+  // }
 });
 
 

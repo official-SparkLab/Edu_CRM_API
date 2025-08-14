@@ -8,8 +8,8 @@ module.exports = {
     FACULTY: 3
   },
   STATUS: {
-    DELETE: 2,
+    DELETE: 0,
     ACTIVE: 1,
-    INACTIVE: 0
+    INACTIVE: 2
   }
 }; 

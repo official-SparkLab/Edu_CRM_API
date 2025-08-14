@@ -95,7 +95,7 @@ exports.fetchBranchList = async (req, res, next) => {
     if (req.user.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches..' });
     }
-    const branches = await Branch.findAll({ where: { status: { [Op.ne]: 2 } } });
+    const branches = await Branch.findAll({ where: { status: { [Op.ne]: STATUS.DELETE } } });
     res.json({ success: true, data: branches });
   } catch (err) {
     next(err);
@@ -114,10 +114,10 @@ exports.deleteBranch = async (req, res, next) => {
     if (req.user.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can delete branches..' });
     }
-    const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id, status: { [Op.ne]: '2' } } });
+    const branch = await Branch.findOne({ where: { branch_id: req.body.branch_id || req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
-    await branch.update({ status: '2' });
-    res.json({ success: true, message: 'Branch soft deleted (status=2).' });
+    await branch.update({ status: '0' });
+    res.json({ success: true, message: 'Branch soft deleted (status=0).' });
   } catch (err) {
     next(err);
   }
@@ -157,7 +157,7 @@ exports.fetchBranchById = async (req, res, next) => {
     if (req.user.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Only Active Super Admin can view branches..' });
     }
-    const branch = await Branch.findOne({ where: { branch_id: req.params.id, status: { [Op.ne]: 2 } } });
+    const branch = await Branch.findOne({ where: { branch_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!branch) return res.status(404).json({ success: false, message: 'Branch not found.' });
     res.json({ success: true, data: branch });
   } catch (err) {

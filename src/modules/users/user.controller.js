@@ -12,14 +12,14 @@ exports.createUser = async (req, res, next) => {
   try {
     // Block if added_by (session user) is deleted
     const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     if (!addedByUser || addedByUser.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
     }
     if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
       return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
-    }
-    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
     }
     const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
     if (password !== confirm_password) {
@@ -51,14 +51,14 @@ exports.createUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   try {
     const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     if (!addedByUser || addedByUser.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
     }
     if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
       return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
-    }
-    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
     }
     const { user_name, contact, email, password, confirm_password, branch_id, role } = req.body;
     const reg_id = req.params.id;
@@ -88,20 +88,20 @@ exports.updateUser = async (req, res, next) => {
 exports.fetchUserList = async (req, res, next) => {
   try {
     const addedByUser = await User.findByPk(req.user.reg_id);
+    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
+      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
+    }
     if (!addedByUser || addedByUser.status === STATUS.DELETE) {
       return res.status(403).json({ success: false, message: 'Deleted users cannot add new users.' });
     }
     if (!addedByUser || addedByUser.status === STATUS.INACTIVE) {
       return res.status(403).json({ success: false, message: 'Inactive users cannot add new users.' });
     }
-    if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
-      return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
-    }
     const branch_id = req.body.branch_id || req.user.branch_id;
     if (!branch_id) {
       return res.status(400).json({ success: false, message: 'branch_id is required.' });
     }
-    const users = await User.findAll({ where: { branch_id, status: { [Op.ne]: 2 } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
+    const users = await User.findAll({ where: { branch_id, status: { [Op.ne]: STATUS.DELETE } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
     res.json({ success: true, data: users });
   } catch (err) {
     next(err);
@@ -121,10 +121,10 @@ exports.deleteUser = async (req, res, next) => {
     if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
     }
-    const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id, status: { [Op.ne]: '2' } } });
+    const user = await User.findOne({ where: { reg_id: req.body.reg_id || req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
-    await user.update({ status: '2' });
-    res.json({ success: true, message: 'User soft deleted (status=2).' });
+    await user.update({ status: '0' });
+    res.json({ success: true, message: 'User soft deleted (status=0).' });
   } catch (err) {
     next(err);
   }
@@ -166,7 +166,7 @@ exports.fetchUserById = async (req, res, next) => {
     if (!addedByUser || addedByUser.role !== ROLES.SUPER_ADMIN) {
       return res.status(403).json({ success: false, message: 'Only Super-Admin add new users.' });
     }
-    const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: 2 } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
+    const user = await User.findOne({ where: { reg_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } },attributes: ['reg_id', 'user_name', 'contact', 'email', 'branch_id', 'role', 'status', 'added_by', 'created_at', 'updated_at'] });
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
     res.json({ success: true, data: user });
   } catch (err) {
