@@ -19,6 +19,7 @@ const userRoutes = require('./modules/users/user.routes');
 const userFetchRoutes = require('./modules/users/user.fetchRoutes');
 const branchRoutes = require('./modules/branch/branch.routes');
 const instituteRoutes = require('./modules/institute/institute.routes');
+const instituteBranchData = require('./modules/institute/instituteBranchData.routes');
 const sectionRoutes = require('./modules/section/section.routes');
 const courseRoutes = require('./modules/course/course.routes');
 const courseFetchRoutes = require('./modules/course/course.fetchRoutes');
@@ -67,6 +68,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/user-list', userFetchRoutes);
 app.use('/api/branch', branchRoutes);
 app.use('/api/institute', instituteRoutes);
+app.use('/api/instituteBranchData', instituteBranchData);
 app.use('/api/section', sectionRoutes);
 app.use('/api/course', courseRoutes); // Course routes
 app.use('/api/course-list', courseFetchRoutes); // Course routes

@@ -187,7 +187,7 @@ CREATE TABLE `tbl_enquiry` (
   `address` TEXT NOT NULL,
   `college_name` VARCHAR(255) NOT NULL,
   `department` VARCHAR(255) NOT NULL,
-  `enquiry_date` DATETIME NOT NULL,
+  `enquiry_date` DATE NOT NULL,
   `reference` VARCHAR(255) NOT NULL,
   `source` VARCHAR(255) NOT NULL,
   `status` INT DEFAULT 1,

@@ -40,7 +40,7 @@ const Enquiry = db.define('Enquiry', {
     allowNull: false
   },
   enquiry_date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false
   },
   reference: {
