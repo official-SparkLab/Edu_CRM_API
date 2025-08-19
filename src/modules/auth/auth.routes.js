@@ -3,8 +3,8 @@
 
 const express = require("express");
 const router = express.Router();
-const { login, createSuperAdmin } = require("./auth.controller");
-const { validateSuperAdmin, validateLogin } = require("./auth.validator");
+const { login, createSuperAdmin, createMainBranch } = require("./auth.controller");
+const { validateMainBranch, validateSuperAdmin, validateLogin } = require("./auth.validator");
 const { validate } = require("../../core/utils/validator");
 
 const rateLimit = require("express-rate-limit");
@@ -16,6 +16,15 @@ const loginLimiter = rateLimit({
 
 const multer = require("multer");
 const upload = multer(); // handles multipart/form-data with only text fields
+
+//Create Main Branch
+router.post(
+  "/main-branch",
+  upload.none(),
+  validateMainBranch,
+  validate,
+  createMainBranch
+);
 
 // Super Admin creation (no auth required for first setup)
 router.post(

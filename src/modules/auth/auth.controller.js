@@ -5,17 +5,43 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../users/user.model");
 const { ROLES, STATUS } = require("../../core/constants");
+const Branch = require("../branch/branch.model");
+
+// Create Super Admin (first user)
+exports.createMainBranch = async (req, res, next) => {
+  try {
+    const { branch_name, branch_code, institute_name, email, phone, alternative_phone, address, district, state, pincode, established_date } = req.body;
+    const mainBranch = await Branch.create({
+      branch_name,
+      branch_code,
+      institute_name,
+      email,
+      phone,
+      alternative_phone,
+      address,
+      district,
+      state,
+      pincode,
+      established_date,
+      status: STATUS.ACTIVE
+    });
+    res.status(201).json({ success: true, data: mainBranch });
+  } catch (err) {
+    next(err);
+  }
+};
 
 // Create Super Admin (first user)
 exports.createSuperAdmin = async (req, res, next) => {
   try {
-    const { user_name, contact, email, password } = req.body;
+    const { user_name, contact, email, password, branch_id } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
     const superAdmin = await User.create({
       user_name,
       contact,
       email,
       password: hashedPassword,
+      branch_id,
       role: ROLES.SUPER_ADMIN,
       status: STATUS.ACTIVE,
     });
