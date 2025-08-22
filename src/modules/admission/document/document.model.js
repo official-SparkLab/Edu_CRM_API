@@ -64,4 +64,10 @@ const Document = db.define('Document', {
   updatedAt: 'updated_at'
 });
 
+
+const Admission = require('../../admission/admissionForm/admission.model');
+
+Admission.hasMany(Document, { foreignKey: 'admission_id', as: 'documents' });
+Document.belongsTo(Admission, { foreignKey: 'admission_id', as: 'admission' });
+
 module.exports = Document; 
