@@ -12,9 +12,9 @@ const upload = multer(); // handles multipart/form-data with only text fields
 router.post('/', authenticate, upload.none(), fetchAdmissions, validate, admissionController.getAdmission);
 
 // Get Admission by ID with full details
-router.get('/:id', authenticate, fetchAdmissionById, validate, admissionController.getAdmissionById);
+router.get('/:id', authenticate, admissionController.getAdmissionById);
 
 // Soft Delete Admission (status = 0)
-router.delete('/:id', authenticate, deleteAdmission, validate, admissionController.deleteAdmission);
+router.delete('/:id', authenticate, admissionController.deleteAdmission);
 
 module.exports = router;
