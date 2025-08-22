@@ -211,3 +211,122 @@ CREATE TABLE `tbl_enquiry` (
     ON UPDATE CASCADE
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+CREATE TABLE `tbl_admission` (
+  `admission_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `full_name` VARCHAR(500) NOT NULL,
+  `gender` VARCHAR(255) NOT NULL,
+  `dob` DATE NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `contact` BIGINT NOT NULL,
+  `address` TEXT NOT NULL,
+  `pincode` VARCHAR(100) NOT NULL,
+  `college_name` VARCHAR(500) NOT NULL,
+  `department` VARCHAR(255) NOT NULL,
+  `admission_date` DATE NOT NULL,
+  `reference` VARCHAR(255) NOT NULL,
+  `status` INT DEFAULT 1,   -- ✅ Added here
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  CONSTRAINT `fk_admission_branch` FOREIGN KEY (`branch_id`) 
+    REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+    
+  CONSTRAINT `fk_admission_addedby` FOREIGN KEY (`added_by`) 
+    REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE `tbl_document` (
+  `document_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `document_name` VARCHAR(255) NOT NULL,
+  `file` TEXT DEFAULT NULL,
+  `admission_id` INT DEFAULT NULL,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `status` INT DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT `fk_document_admission`
+    FOREIGN KEY (`admission_id`) REFERENCES `tbl_admission` (`admission_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_document_branch`
+    FOREIGN KEY (`branch_id`) REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_document_added_by`
+    FOREIGN KEY (`added_by`) REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+
+CREATE TABLE `tbl_admission_course` (
+  `adm_course_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `course_id` INT DEFAULT NULL,
+  `batch_id` INT DEFAULT NULL,
+  `admission_id` INT DEFAULT NULL,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `status` INT DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT `fk_adm_course_course`
+    FOREIGN KEY (`course_id`) REFERENCES `tbl_course` (`course_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_course_batch`
+    FOREIGN KEY (`batch_id`) REFERENCES `tbl_batch` (`batch_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_course_admission`
+    FOREIGN KEY (`admission_id`) REFERENCES `tbl_admission` (`admission_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_course_branch`
+    FOREIGN KEY (`branch_id`) REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_course_added_by`
+    FOREIGN KEY (`added_by`) REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE `tbl_admission_service` (
+  `adm_service_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `service_id` INT DEFAULT NULL,
+  `admission_id` INT DEFAULT NULL,
+  `branch_id` INT DEFAULT NULL,
+  `added_by` INT DEFAULT NULL,
+  `status` INT DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT `fk_adm_service_service`
+    FOREIGN KEY (`service_id`) REFERENCES `tbl_service` (`service_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_service_admission`
+    FOREIGN KEY (`admission_id`) REFERENCES `tbl_admission` (`admission_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_service_branch`
+    FOREIGN KEY (`branch_id`) REFERENCES `tbl_branch` (`branch_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_service_added_by`
+    FOREIGN KEY (`added_by`) REFERENCES `tbl_registration` (`reg_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL
+);
+

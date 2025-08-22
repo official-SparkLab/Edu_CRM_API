@@ -4,7 +4,7 @@
 const app = require('./app');
 const db = require('./config/db');
 require('dotenv').config();
-
+require('./associations');
 const PORT = process.env.PORT || 5000;
 
 // Connect to MySQL database and sync models (auto-create tables)

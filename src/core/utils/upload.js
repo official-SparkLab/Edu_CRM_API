@@ -41,15 +41,15 @@ const createUploadConfig = (moduleName, opts = {}) => {
     'image/svg+xml',
     'image/gif',
     // documents
-    // 'application/pdf',
-    // 'application/msword',
-    // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
     // 'application/vnd.ms-excel',
-    // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
-    // 'application/vnd.ms-powerpoint',
-    // 'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
-    // 'text/plain',
-    // 'text/csv',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation', // pptx
+    'text/plain',
+    'text/csv',
     // compressed
     // 'application/zip',
     // 'application/x-7z-compressed',

@@ -29,6 +29,11 @@ const serviceRoutes = require('./modules/service/service.routes');
 const serviceFetchRoutes = require('./modules/service/service.fetchRoutes');
 const enquiryRoutes = require('./modules/enquiry/enquiry.routes');
 const enquiryFetchRoutes = require('./modules/enquiry/enquiry.fetchRoutes');
+const admissionFormRoutes = require('./modules/admission/admissionForm/admission.routes');
+const documentFormRoutes = require('./modules/admission/document/document.routes');
+const admissionCourseFormRoutes = require('./modules/admission/admissionCourse/admissionCourse.routes');
+const admissionServiceFormRoutes = require('./modules/admission/admissionService/admissionService.routes');
+const admissionFetchRoutes = require('./modules/admission/admission.fetchRoutes');
 
 const app = express();
 
@@ -78,6 +83,11 @@ app.use('/api/service', serviceRoutes); // Service routes
 app.use('/api/service-list', serviceFetchRoutes); // Service Fetch routes
 app.use('/api/enquiry', enquiryRoutes); // Enquiry routes
 app.use('/api/enquiry-list', enquiryFetchRoutes); // Enquiry Fetch routes
+app.use('/api/admission', admissionFormRoutes); // Admission Form routes
+app.use('/api/admission-document', documentFormRoutes); // Admission Document routes
+app.use('/api/admission-course', admissionCourseFormRoutes); // Admission Course routes
+app.use('/api/admission-service', admissionServiceFormRoutes); // Admission Service routes
+app.use('/api/admission-list', admissionFetchRoutes); // Enquiry Fetch routes
 
 app.get('/base', (req, res) => {
   res.send('Node.js base working!');
