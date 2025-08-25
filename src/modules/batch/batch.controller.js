@@ -3,6 +3,7 @@
 const Batch = require('./batch.model');
 const { STATUS } = require('../../core/constants');
 const Branch = require('../branch/branch.model');
+const Course = require('../course/course.model');
 const { Op } = require('sequelize');
 const cacheService = require('../../core/services/cache.service'); // cache service
 
@@ -58,7 +59,7 @@ exports.getBatch = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Only Active User can view batch.' });
     }
 
-    const branch = await Branch.findOne({ where: { branch_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
+    const branch = await Branch.findOne({ where: { branch_id, status: [STATUS.ACTIVE] } });
     if (!branch) return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
 
     const cacheKey = `${LIST_CACHE_PREFIX}${branch_id}`;
@@ -76,6 +77,65 @@ exports.getBatch = async (req, res, next) => {
     next(err);
   }
 };
+
+// Get Batches by branch + course (cached)
+exports.getBatchCourse = async (req, res, next) => {
+  try {
+    const { branch_id, course_id } = req.body;
+
+    // Validate required inputs quickly
+    if (!branch_id) {
+      return res.status(400).json({ success: false, message: 'branch_id is required.' });
+    }
+    if (!course_id) {
+      return res.status(400).json({ success: false, message: 'course_id is required.' });
+    }
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
+      return res.status(403).json({ success: false, message: 'Only Active User can view batch.' });
+    }
+
+    // ⚡️ Check cache FIRST
+    const cacheKey = `${LIST_CACHE_PREFIX}${branch_id}_course_${course_id}`;
+    let batches = await cacheService.get(cacheKey);
+    if (batches) {
+      return res.json({ success: true, data: batches, cached: true });
+    }
+
+    // Validate branch & course only if not cached
+    const [branch, course] = await Promise.all([
+      Branch.findOne({ where: { branch_id, status: STATUS.ACTIVE } }),
+      Course.findOne({ where: { course_id, status: STATUS.ACTIVE } })
+    ]);
+
+    if (!branch) {
+      return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
+    }
+    if (!course) {
+      return res.status(400).json({ success: false, message: 'Invalid or deleted course_id.' });
+    }
+
+    // Fetch batches
+    const rows = await Batch.findAll({
+      where: {
+        status: { [Op.ne]: STATUS.DELETE },
+        branch_id,
+        course_id
+      }
+    });
+
+    batches = rows.map(r => toPlain(r));
+
+    // Store in cache
+    await cacheService.set(cacheKey, batches);
+
+    res.json({ success: true, data: batches, cached: false });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
 
 // Get Batch by ID (cached)
 exports.getBatchById = async (req, res, next) => {
