@@ -19,9 +19,13 @@ const updateBatch = [
 const fetchBatch = [
   body('branch_id').notEmpty().isNumeric().withMessage('Branch ID is required and must be numeric'),
 ];
+const fetchBatchCourse = [
+  body('branch_id').notEmpty().isNumeric().withMessage('Branch ID is required and must be numeric'),
+  body('course_id').notEmpty().isNumeric().withMessage('Course ID is required and must be numeric'),
+];
 
 const updateStatus = [
   body('status').notEmpty().isNumeric().withMessage('Status is required and must be numeric'),
 ];
 
-module.exports = { createBatch, updateBatch , fetchBatch, updateStatus }; 
+module.exports = { createBatch, updateBatch , fetchBatch, fetchBatchCourse, updateStatus }; 

@@ -25,6 +25,7 @@ const courseRoutes = require('./modules/course/course.routes');
 const courseFetchRoutes = require('./modules/course/course.fetchRoutes');
 const batchRoutes = require('./modules/batch/batch.routes');
 const batchFetchRoutes = require('./modules/batch/batch.fetchRoutes');
+const batchCourseFetchRoutes = require('./modules/batch/batchCourse.fetchRoutes');
 const serviceRoutes = require('./modules/service/service.routes');
 const serviceFetchRoutes = require('./modules/service/service.fetchRoutes');
 const enquiryRoutes = require('./modules/enquiry/enquiry.routes');
@@ -79,6 +80,7 @@ app.use('/api/course', courseRoutes); // Course routes
 app.use('/api/course-list', courseFetchRoutes); // Course routes
 app.use('/api/batch', batchRoutes); // Batch routes
 app.use('/api/batch-list', batchFetchRoutes); // Batch routes
+app.use('/api/batch-course', batchCourseFetchRoutes); // Batch routes
 app.use('/api/service', serviceRoutes); // Service routes
 app.use('/api/service-list', serviceFetchRoutes); // Service Fetch routes
 app.use('/api/enquiry', enquiryRoutes); // Enquiry routes
