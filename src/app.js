@@ -35,6 +35,9 @@ const documentFormRoutes = require('./modules/admission/document/document.routes
 const admissionCourseFormRoutes = require('./modules/admission/admissionCourse/admissionCourse.routes');
 const admissionServiceFormRoutes = require('./modules/admission/admissionService/admissionService.routes');
 const admissionFetchRoutes = require('./modules/admission/admission.fetchRoutes');
+const paymentRoutes = require('./modules/payment/payment.routes');
+const paymentFetchRoutes = require('./modules/payment/paymentFetch.routes');
+const paymentFetchByAdmissionIdRoutes = require('./modules/payment/paymentFetchByAdmissionId.routes');
 
 const app = express();
 
@@ -89,7 +92,10 @@ app.use('/api/admission', admissionFormRoutes); // Admission Form routes
 app.use('/api/admission-document', documentFormRoutes); // Admission Document routes
 app.use('/api/admission-course', admissionCourseFormRoutes); // Admission Course routes
 app.use('/api/admission-service', admissionServiceFormRoutes); // Admission Service routes
-app.use('/api/admission-list', admissionFetchRoutes); // Enquiry Fetch routes
+app.use('/api/admission-list', admissionFetchRoutes); // Admission List Fetch routes
+app.use('/api/payment', paymentRoutes); // Payment routes
+app.use('/api/payment-list', paymentFetchRoutes); // Payment List Fetch Fetch routes
+app.use('/api/payment-admissionID', paymentFetchByAdmissionIdRoutes); // Payment Fetch By Admission Id routes
 
 app.get('/base', (req, res) => {
   res.send('Node.js base working!');
