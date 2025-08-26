@@ -330,3 +330,37 @@ CREATE TABLE `tbl_admission_service` (
     ON UPDATE CASCADE ON DELETE SET NULL
 );
 
+
+
+CREATE TABLE `tbl_payment` (
+  `payment_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `admission_id` INT NULL,
+  `payment_date` DATE NOT NULL,
+  `amount_paid` DECIMAL(10,2) NOT NULL,
+  `payment_mode` VARCHAR(255) NOT NULL,
+  `remark` TEXT NULL,
+  `received_by` VARCHAR(255) NOT NULL,
+  `status` INT DEFAULT 1,
+  `branch_id` INT NULL,
+  `added_by` INT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT `fk_payment_admission`
+    FOREIGN KEY (`admission_id`)
+    REFERENCES `tbl_admission`(`admission_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_payment_branch`
+    FOREIGN KEY (`branch_id`)
+    REFERENCES `tbl_branch`(`branch_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_payment_registration`
+    FOREIGN KEY (`added_by`)
+    REFERENCES `tbl_registration`(`reg_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+);
