@@ -9,6 +9,7 @@ const cacheService = require('../../core/services/cache.service'); // cache serv
 // cache keys
 const CACHE_PREFIX = 'payment_';
 const LIST_CACHE_PREFIX = 'payment_list_';
+const ADMISSION_CACHE_PREFIX = 'payment_admission_';
 
 function toPlain(instance) {
   if (!instance) return null;
@@ -47,6 +48,7 @@ exports.createPayment = async (req, res, next) => {
     // invalidate caches
     await Promise.all([
       cacheService.del(`${LIST_CACHE_PREFIX}${branch_id}`),
+      cacheService.del(`${ADMISSION_CACHE_PREFIX}${admission_id}`),
       cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
     ]);
 
@@ -141,6 +143,7 @@ exports.updatePayment = async (req, res, next) => {
     await Promise.all([
       cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
       cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
+      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`),
       cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
     ]);
 
@@ -164,7 +167,8 @@ exports.deletePayment = async (req, res, next) => {
 
     await Promise.all([
       cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
-      cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`)
+      cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
+      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`)
     ]);
 
     res.json({ success: true, message: 'Payment soft deleted successfully.' });
@@ -190,6 +194,7 @@ exports.changeStatus = async (req, res, next) => {
     await Promise.all([
       cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
       cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
+      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`),
       cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
     ]);
 
@@ -211,7 +216,7 @@ exports.getPaymentByAdmissionId = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Admission ID is required.' });
     }
 
-    const cacheKey = `${CACHE_PREFIX}admission_${admission_id}`;
+    const cacheKey = `${ADMISSION_CACHE_PREFIX}${admission_id}`;
     let payments = await cacheService.get(cacheKey);
 
     if (!payments) {
@@ -232,4 +237,3 @@ exports.getPaymentByAdmissionId = async (req, res, next) => {
     next(err);
   }
 };
-

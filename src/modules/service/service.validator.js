@@ -2,11 +2,13 @@ const { body } = require('express-validator');
 
 const createService = [
   body('service_name').notEmpty().withMessage('Service name is required'),
+  body('fees').notEmpty().isNumeric().withMessage('Service Fee is required'),
   body('branch_id').notEmpty().isNumeric().withMessage('Branch id is required'),
 ];
 
 const updateService = [
   // body('service_name').notEmpty().withMessage('Service name is required'),
+  // body('fees').notEmpty().isNumeric().withMessage('Service Fee is required'),
   body('branch_id').notEmpty().isNumeric().withMessage('Branch id is required'),
 ];
 
