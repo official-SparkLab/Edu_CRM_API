@@ -156,6 +156,7 @@ CREATE TABLE `tbl_service` (
   `service_id` INT AUTO_INCREMENT PRIMARY KEY,
   `service_name` VARCHAR(255) NOT NULL,
   `service_details` TEXT NOT NULL,
+  `fees` VARCHAR(255) NOT NULL,
   `status` INT DEFAULT 1,
   `branch_id` INT DEFAULT NULL,
   `added_by` INT DEFAULT NULL,
@@ -272,6 +273,7 @@ CREATE TABLE `tbl_document` (
 CREATE TABLE `tbl_admission_course` (
   `adm_course_id` INT AUTO_INCREMENT PRIMARY KEY,
   `course_id` INT DEFAULT NULL,
+  `fees` VARCHAR(255) NOT NULL,
   `batch_id` INT DEFAULT NULL,
   `admission_id` INT DEFAULT NULL,
   `branch_id` INT DEFAULT NULL,
@@ -306,6 +308,7 @@ CREATE TABLE `tbl_admission_course` (
 CREATE TABLE `tbl_admission_service` (
   `adm_service_id` INT AUTO_INCREMENT PRIMARY KEY,
   `service_id` INT DEFAULT NULL,
+  `fees` VARCHAR(255) NOT NULL,
   `admission_id` INT DEFAULT NULL,
   `branch_id` INT DEFAULT NULL,
   `added_by` INT DEFAULT NULL,
@@ -336,7 +339,7 @@ CREATE TABLE `tbl_payment` (
   `payment_id` INT AUTO_INCREMENT PRIMARY KEY,
   `admission_id` INT NULL,
   `payment_date` DATE NOT NULL,
-  `amount_paid` DECIMAL(10,2) NOT NULL,
+  `amount_paid` VARCHAR(255) NOT NULL,
   `payment_mode` VARCHAR(255) NOT NULL,
   `remark` TEXT NULL,
   `received_by` VARCHAR(255) NOT NULL,

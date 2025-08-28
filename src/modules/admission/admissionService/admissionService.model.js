@@ -17,6 +17,10 @@ const AdmissionService = db.define('AdmissionService', {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   },
+  fees: {
+    type: DataTypes.STRING(255),  // you can use DECIMAL if numeric fees are needed
+    allowNull: false
+  },
   admission_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
