@@ -15,6 +15,10 @@ const Service = db.define('Service', {
     type: DataTypes.TEXT,
     allowNull: false
   },
+  fees: {
+    type: DataTypes.STRING(255),  // you can use DECIMAL if numeric fees are needed
+    allowNull: false
+  },
   status: {
     type: DataTypes.INTEGER,
     defaultValue: 1

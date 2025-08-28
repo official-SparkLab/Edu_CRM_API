@@ -22,7 +22,7 @@ const Payment = db.define('Payment', {
     allowNull: false
   },
   amount_paid: {
-    type: DataTypes.DECIMAL(10,2), // better than TEXT for money
+    type: DataTypes.STRING(255),  // changed from DECIMAL to VARCHAR
     allowNull: false
   },
   payment_mode: {
