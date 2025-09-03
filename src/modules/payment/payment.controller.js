@@ -25,7 +25,14 @@ exports.createPayment = async (req, res, next) => {
     }
 
     const paymentData = { ...req.body };
-    const { branch_id, admission_id } = paymentData;
+    const { branch_id, admission_id, adm_course_id, adm_service_id } = paymentData;
+    // Validate exactly one of adm_course_id or adm_service_id must be present
+if ((!adm_course_id && !adm_service_id) || (adm_course_id && adm_service_id)) {
+  return res.status(400).json({ 
+    success: false, 
+    message: 'Either Admission Course ID or Admission Service ID must be provided, but not both.'
+  });
+}
 
     if (!branch_id) return res.status(400).json({ success: false, message: 'Branch ID is required.' });
     if (!admission_id) return res.status(400).json({ success: false, message: 'Admission ID is required.' });
