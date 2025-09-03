@@ -17,6 +17,26 @@ const Payment = db.define('Payment', {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   },
+  adm_course_id: {                          // New foreign key field
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tbl_admission_course',
+      key: 'adm_course_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  },
+  adm_service_id: {                         // New foreign key field
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tbl_admission_service',
+      key: 'adm_service_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  },
   payment_date: {
     type: DataTypes.DATEONLY,
     allowNull: false

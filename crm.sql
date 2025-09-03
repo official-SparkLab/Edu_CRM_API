@@ -338,6 +338,8 @@ CREATE TABLE `tbl_admission_service` (
 CREATE TABLE `tbl_payment` (
   `payment_id` INT AUTO_INCREMENT PRIMARY KEY,
   `admission_id` INT NULL,
+  `adm_course_id` INT,
+  `adm_service_id` INT,
   `payment_date` DATE NOT NULL,
   `amount_paid` VARCHAR(255) NOT NULL,
   `payment_mode` VARCHAR(255) NOT NULL,
@@ -352,6 +354,18 @@ CREATE TABLE `tbl_payment` (
   CONSTRAINT `fk_payment_admission`
     FOREIGN KEY (`admission_id`)
     REFERENCES `tbl_admission`(`admission_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_admission_course`
+    FOREIGN KEY (`adm_course_id`)
+    REFERENCES `tbl_admission_course`(`adm_course_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_admission_service`
+    FOREIGN KEY (`adm_service_id`)
+    REFERENCES `tbl_admission_service`(`adm_service_id`)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
 
