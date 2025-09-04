@@ -35,6 +35,7 @@ const documentFormRoutes = require('./modules/admission/document/document.routes
 const admissionCourseFormRoutes = require('./modules/admission/admissionCourse/admissionCourse.routes');
 const admissionServiceFormRoutes = require('./modules/admission/admissionService/admissionService.routes');
 const admissionFetchRoutes = require('./modules/admission/admission.fetchRoutes');
+const paymentRoutes = require('./modules/payment/payment.routes');
 const paymentCourseRoutes = require('./modules/payment/paymentCourse/paymentCourse.routes');
 const paymentCourseFetchRoutes = require('./modules/payment/paymentCourse/paymentCourseFetch.routes');
 const paymentCourseFetchByAdmissionIdRoutes = require('./modules/payment/paymentCourse/paymentCourseFetchByAdmissionId.routes');
@@ -96,6 +97,7 @@ app.use('/api/admission-document', documentFormRoutes); // Admission Document ro
 app.use('/api/admission-course', admissionCourseFormRoutes); // Admission Course routes
 app.use('/api/admission-service', admissionServiceFormRoutes); // Admission Service routes
 app.use('/api/admission-list', admissionFetchRoutes); // Admission List Fetch routes
+app.use('/api/payment', paymentRoutes); // Payment routes
 app.use('/api/paymentCourse', paymentCourseRoutes); // Payment Course routes
 app.use('/api/paymentCourse-list', paymentCourseFetchRoutes); // Payment Course List Fetch Fetch routes
 app.use('/api/paymentCourse-admissionID', paymentCourseFetchByAdmissionIdRoutes); // Payment Course Fetch By Admission Id routes
