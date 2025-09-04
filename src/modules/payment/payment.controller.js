@@ -1,15 +1,8 @@
-const Payment = require('./payment.model');
+const PaymentCourse = require('../payment/paymentCourse/paymentCourse.model');
+const PaymentService = require('../payment/paymentService/paymentService.model');
 const { STATUS } = require('../../core/constants');
-const Branch = require('../branch/branch.model');
-const Admission = require('../admission/admissionForm/admission.model');
-const User = require('../users/user.model');
 const { Op } = require('sequelize');
-const cacheService = require('../../core/services/cache.service'); // cache service
-
-// cache keys
-const CACHE_PREFIX = 'payment_';
-const LIST_CACHE_PREFIX = 'payment_list_';
-const ADMISSION_CACHE_PREFIX = 'payment_admission_';
+const cacheService = require('../../core/services/cache.service');
 
 function toPlain(instance) {
   if (!instance) return null;
@@ -17,56 +10,20 @@ function toPlain(instance) {
   return instance;
 }
 
-// ---------- Create Payment ----------
-exports.createPayment = async (req, res, next) => {
-  try {
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active User can create payment.' });
-    }
-
-    const paymentData = { ...req.body };
-    const { branch_id, admission_id, adm_course_id, adm_service_id } = paymentData;
-    // Validate exactly one of adm_course_id or adm_service_id must be present
-if ((!adm_course_id && !adm_service_id) || (adm_course_id && adm_service_id)) {
-  return res.status(400).json({ 
-    success: false, 
-    message: 'Either Admission Course ID or Admission Service ID must be provided, but not both.'
-  });
+function getModelByType(type) {
+  if (type === 'service') return PaymentService;
+  return PaymentCourse; // default
 }
 
-    if (!branch_id) return res.status(400).json({ success: false, message: 'Branch ID is required.' });
-    if (!admission_id) return res.status(400).json({ success: false, message: 'Admission ID is required.' });
+// Cache Keys Prefixes
+const CACHE_PREFIX_COURSE = 'paymentCourse_';
+const CACHE_PREFIX_SERVICE = 'paymentService_';
+const LIST_CACHE_PREFIX_COURSE = 'paymentCourse_list_';
+const LIST_CACHE_PREFIX_SERVICE = 'paymentService_list_';
+const ADMISSION_CACHE_PREFIX_COURSE = 'paymentCourse_admission_';
+const ADMISSION_CACHE_PREFIX_SERVICE = 'paymentService_admission_';
 
-    const addedByUser = await User.findByPk(req.user.reg_id);
-    if (!addedByUser) return res.status(404).json({ success: false, message: 'User not found.' });
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(addedByUser.status)) {
-      return res.status(403).json({ success: false, message: 'Inactive or deleted users cannot create a payment.' });
-    }
-
-    const branch = await Branch.findOne({ where: { branch_id, status: { [Op.in]: [STATUS.ACTIVE] } } });
-    if (!branch) return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
-
-    const admission = await Admission.findOne({ where: { admission_id, status: { [Op.in]: [STATUS.ACTIVE] } } });
-    if (!admission) return res.status(400).json({ success: false, message: 'Invalid or deleted admission_id.' });
-
-    paymentData.added_by = req.user.reg_id;
-    const payment = await Payment.create(paymentData);
-
-    // invalidate caches
-    await Promise.all([
-      cacheService.del(`${LIST_CACHE_PREFIX}${branch_id}`),
-      cacheService.del(`${ADMISSION_CACHE_PREFIX}${admission_id}`),
-      cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
-    ]);
-
-    res.status(201).json({ success: true, data: payment });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ---------- Get Payments by Branch (cached) ----------
-exports.getPayment = async (req, res, next) => {
+exports.getPaymentsByBranch = async (req, res, next) => {
   try {
     const { branch_id } = req.body;
     if (!branch_id) return res.status(400).json({ success: false, message: 'branch_id is required.' });
@@ -74,172 +31,150 @@ exports.getPayment = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
     }
 
-    const branch = await Branch.findOne({ where: { branch_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
-    if (!branch) return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
+    // Try cache first separately for course and service
+    const [cachedCourses, cachedServices] = await Promise.all([
+      cacheService.get(LIST_CACHE_PREFIX_COURSE + branch_id),
+      cacheService.get(LIST_CACHE_PREFIX_SERVICE + branch_id)
+    ]);
 
-    const cacheKey = `${LIST_CACHE_PREFIX}${branch_id}`;
-    let payments = await cacheService.get(cacheKey);
-    if (payments) return res.json({ success: true, data: payments });
+    let courses, services;
+    if (cachedCourses && cachedServices) {
+      courses = cachedCourses;
+      services = cachedServices;
+    } else {
+      [courses, services] = await Promise.all([
+        PaymentCourse.findAll({ where: { status: { [Op.ne]: STATUS.DELETE }, branch_id } }),
+        PaymentService.findAll({ where: { status: { [Op.ne]: STATUS.DELETE }, branch_id } }),
+      ]);
+      courses = courses.map(toPlain);
+      services = services.map(toPlain);
 
-    const rows = await Payment.findAll({ where: { status: { [Op.ne]: STATUS.DELETE }, branch_id } });
-    payments = rows.map(r => toPlain(r));
-    await cacheService.set(cacheKey, payments);
+      // Set caches (ignore failures)
+      await Promise.all([
+        cacheService.set(LIST_CACHE_PREFIX_COURSE + branch_id, courses).catch(() => {}),
+        cacheService.set(LIST_CACHE_PREFIX_SERVICE + branch_id, services).catch(() => {})
+      ]);
+    }
 
-    res.json({ success: true, data: payments });
+    res.json({
+      success: true,
+      data: { courses, services },
+    });
   } catch (err) {
     next(err);
   }
 };
 
-// ---------- Get Payment by ID (cached) ----------
-exports.getPaymentById = async (req, res, next) => {
+exports.getPaymentsByAdmissionId = async (req, res, next) => {
   try {
+    const { admission_id } = req.body;
+    if (!admission_id) return res.status(400).json({ success: false, message: 'Admission ID is required.' });
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
     }
 
-    const cacheKey = `${CACHE_PREFIX}${req.params.id}`;
-    let payment = await cacheService.get(cacheKey);
-
-    if (!payment) {
-      const row = await Payment.findOne({ where: { payment_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
-      if (!row) return res.status(404).json({ success: false, message: 'Payment not found' });
-
-      payment = toPlain(row);
-      await cacheService.set(cacheKey, payment);
-    }
-
-    res.json({ success: true, data: payment });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ---------- Update Payment ----------
-exports.updatePayment = async (req, res, next) => {
-  try {
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active User can update payment.' });
-    }
-
-    const paymentData = { ...req.body };
-    const { branch_id, admission_id } = paymentData;
-
-    if (!branch_id) return res.status(400).json({ success: false, message: 'Branch ID is required.' });
-    if (!admission_id) return res.status(400).json({ success: false, message: 'Admission ID is required.' });
-
-    const addedByUser = await User.findByPk(req.user.reg_id);
-    if (!addedByUser) return res.status(404).json({ success: false, message: 'User not found.' });
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(addedByUser.status)) {
-      return res.status(403).json({ success: false, message: 'Inactive or deleted users cannot update a payment.' });
-    }
-
-    const payment = await Payment.findOne({ where: { payment_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
-    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
-
-    const branch = await Branch.findOne({ where: { branch_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
-    if (!branch) return res.status(400).json({ success: false, message: 'Invalid or deleted branch_id.' });
-
-    const admission = await Admission.findOne({ where: { admission_id, status: [STATUS.ACTIVE, STATUS.INACTIVE] } });
-    if (!admission) return res.status(400).json({ success: false, message: 'Invalid or deleted admission_id.' });
-
-    paymentData.added_by = req.user.reg_id;
-    await payment.update(paymentData);
-    await payment.reload();
-
-    await Promise.all([
-      cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
-      cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
-      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`),
-      cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
+    // Try cache separate for course and service admissions
+    const [cachedCourses, cachedServices] = await Promise.all([
+      cacheService.get(ADMISSION_CACHE_PREFIX_COURSE + admission_id),
+      cacheService.get(ADMISSION_CACHE_PREFIX_SERVICE + admission_id)
     ]);
 
+    let courses, services;
+    if (cachedCourses && cachedServices) {
+      courses = cachedCourses;
+      services = cachedServices;
+    } else {
+      [courses, services] = await Promise.all([
+        PaymentCourse.findAll({ where: { admission_id, status: { [Op.ne]: STATUS.DELETE } } }),
+        PaymentService.findAll({ where: { admission_id, status: { [Op.ne]: STATUS.DELETE } } }),
+      ]);
+      if (!courses.length && !services.length) {
+         return res.status(404).json({ success: false, message: 'No payments found for this admission.' });
+      }
+      courses = courses.map(toPlain);
+      services = services.map(toPlain);
+
+      await Promise.all([
+        cacheService.set(ADMISSION_CACHE_PREFIX_COURSE + admission_id, courses).catch(() => {}),
+        cacheService.set(ADMISSION_CACHE_PREFIX_SERVICE + admission_id, services).catch(() => {})
+      ]);
+    }
+
+    res.json({
+      success: true,
+      data: { courses, services }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getPaymentById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { type } = req.query; // 'course' or 'service'
+
+    if (!type || !['course', 'service'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Payment type (course or service) query param is required.' });
+    }
+
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
+      return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
+    }
+
+    const Model = getModelByType(type);
+    const pkField = type === 'service' ? 'pay_service_id' : 'pay_course_id';
+    const cacheKey = (type === 'service' ? CACHE_PREFIX_SERVICE : CACHE_PREFIX_COURSE) + id;
+
+    let payment = await cacheService.get(cacheKey);
+    if (!payment) {
+      const dbPayment = await Model.findOne({ where: { [pkField]: id, status: { [Op.ne]: STATUS.DELETE } } });
+      if (!dbPayment) return res.status(404).json({ success: false, message: 'Payment not found' });
+      payment = toPlain(dbPayment);
+      await cacheService.set(cacheKey, payment).catch(() => {});
+    }
+
     res.json({ success: true, data: payment });
   } catch (err) {
     next(err);
   }
 };
 
-// ---------- Delete Payment (soft) ----------
-exports.deletePayment = async (req, res, next) => {
+exports.deletePaymentById = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const { type } = req.query;
+
+    if (!type || !['course', 'service'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Payment type (course or service) query param is required.' });
+    }
+
     if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
       return res.status(403).json({ success: false, message: 'Only Active User can delete payment.' });
     }
 
-    const payment = await Payment.findOne({ where: { payment_id: req.params.id, status: { [Op.ne]: STATUS.DELETE } } });
+    const Model = getModelByType(type);
+    const pkField = type === 'service' ? 'pay_service_id' : 'pay_course_id';
+
+    const payment = await Model.findOne({ where: { [pkField]: id, status: { [Op.ne]: STATUS.DELETE } } });
     if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
 
     await payment.update({ status: STATUS.DELETE });
 
+    // Clear related caches
+    const branchId = payment.branch_id;
+    const admissionId = payment.admission_id;
+    const cacheKey = (type === 'service' ? CACHE_PREFIX_SERVICE : CACHE_PREFIX_COURSE) + id;
+    const listCacheKey = type === 'service' ? LIST_CACHE_PREFIX_SERVICE + branchId : LIST_CACHE_PREFIX_COURSE + branchId;
+    const admissionCacheKey = type === 'service' ? ADMISSION_CACHE_PREFIX_SERVICE + admissionId : ADMISSION_CACHE_PREFIX_COURSE + admissionId;
+
     await Promise.all([
-      cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
-      cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
-      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`)
+      cacheService.del(cacheKey).catch(() => {}),
+      cacheService.del(listCacheKey).catch(() => {}),
+      cacheService.del(admissionCacheKey).catch(() => {}),
     ]);
 
     res.json({ success: true, message: 'Payment soft deleted successfully.' });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ---------- Change Payment Status ----------
-exports.changeStatus = async (req, res, next) => {
-  try {
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active User can change payment status.' });
-    }
-
-    const { status } = req.body;
-    const payment = await Payment.findOne({ where: { payment_id: req.params.id } });
-    if (!payment) return res.status(404).json({ success: false, message: 'Payment not found' });
-
-    payment.status = status;
-    await payment.save();
-
-    await Promise.all([
-      cacheService.del(`${LIST_CACHE_PREFIX}${payment.branch_id}`),
-      cacheService.del(`${CACHE_PREFIX}${payment.payment_id}`),
-      cacheService.del(`${ADMISSION_CACHE_PREFIX}${payment.admission_id}`),
-      cacheService.set(`${CACHE_PREFIX}${payment.payment_id}`, toPlain(payment))
-    ]);
-
-    res.json({ success: true, data: payment });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// ---------- Get Payments by Admission ID (cached) ----------
-exports.getPaymentByAdmissionId = async (req, res, next) => {
-  try {
-    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
-      return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
-    }
-
-    const { admission_id } = req.body;
-    if (!admission_id) {
-      return res.status(400).json({ success: false, message: 'Admission ID is required.' });
-    }
-
-    const cacheKey = `${ADMISSION_CACHE_PREFIX}${admission_id}`;
-    let payments = await cacheService.get(cacheKey);
-
-    if (!payments) {
-      const rows = await Payment.findAll({
-        where: { admission_id, status: { [Op.ne]: STATUS.DELETE } }
-      });
-
-      if (!rows.length) {
-        return res.status(404).json({ success: false, message: 'No payments found for this admission.' });
-      }
-
-      payments = rows.map(r => toPlain(r));
-      await cacheService.set(cacheKey, payments);
-    }
-
-    res.json({ success: true, data: payments });
   } catch (err) {
     next(err);
   }
