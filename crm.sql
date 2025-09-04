@@ -335,11 +335,10 @@ CREATE TABLE `tbl_admission_service` (
 
 
 
-CREATE TABLE `tbl_payment` (
-  `payment_id` INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE `tbl_payment_course` (
+  `pay_course_id` INT AUTO_INCREMENT PRIMARY KEY,
   `admission_id` INT NULL,
   `adm_course_id` INT,
-  `adm_service_id` INT,
   `payment_date` DATE NOT NULL,
   `amount_paid` VARCHAR(255) NOT NULL,
   `payment_mode` VARCHAR(255) NOT NULL,
@@ -351,31 +350,58 @@ CREATE TABLE `tbl_payment` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  CONSTRAINT `fk_payment_admission`
+  CONSTRAINT `fk_payment_course_admission`
     FOREIGN KEY (`admission_id`)
     REFERENCES `tbl_admission`(`admission_id`)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
 
-  CONSTRAINT `fk_admission_course`
+  CONSTRAINT `fk_payment_course_admission_course`
     FOREIGN KEY (`adm_course_id`)
     REFERENCES `tbl_admission_course`(`adm_course_id`)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
 
-  CONSTRAINT `fk_admission_service`
-    FOREIGN KEY (`adm_service_id`)
-    REFERENCES `tbl_admission_service`(`adm_service_id`)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL,
-
-  CONSTRAINT `fk_payment_branch`
+  CONSTRAINT `fk_payment_course_branch`
     FOREIGN KEY (`branch_id`)
     REFERENCES `tbl_branch`(`branch_id`)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
 
-  CONSTRAINT `fk_payment_registration`
+  CONSTRAINT `fk_payment_course_registration`
+    FOREIGN KEY (`added_by`)
+    REFERENCES `tbl_registration`(`reg_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL
+);
+
+CREATE TABLE `tbl_payment_service` (
+  `pay_service_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `admission_id` INT NULL,
+  `payment_date` DATE NOT NULL,
+  `amount_paid` VARCHAR(255) NOT NULL,
+  `payment_mode` VARCHAR(255) NOT NULL,
+  `remark` TEXT NULL,
+  `received_by` VARCHAR(255) NOT NULL,
+  `status` INT DEFAULT 1,
+  `branch_id` INT NULL,
+  `added_by` INT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+  CONSTRAINT `fk_payment_service_admission`
+    FOREIGN KEY (`admission_id`)
+    REFERENCES `tbl_admission`(`admission_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_payment_service_branch`
+    FOREIGN KEY (`branch_id`)
+    REFERENCES `tbl_branch`(`branch_id`)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+
+  CONSTRAINT `fk_payment_service_registration`
     FOREIGN KEY (`added_by`)
     REFERENCES `tbl_registration`(`reg_id`)
     ON UPDATE CASCADE
