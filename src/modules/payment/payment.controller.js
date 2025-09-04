@@ -23,6 +23,13 @@ const LIST_CACHE_PREFIX_SERVICE = 'paymentService_list_';
 const ADMISSION_CACHE_PREFIX_COURSE = 'paymentCourse_admission_';
 const ADMISSION_CACHE_PREFIX_SERVICE = 'paymentService_admission_';
 
+function addType(payments, type) {
+  return payments.map(payment => ({
+    ...payment,
+    payment_type: type
+  }));
+}
+
 exports.getPaymentsByBranch = async (req, res, next) => {
   try {
     const { branch_id } = req.body;
@@ -31,7 +38,6 @@ exports.getPaymentsByBranch = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
     }
 
-    // Try cache first separately for course and service
     const [cachedCourses, cachedServices] = await Promise.all([
       cacheService.get(LIST_CACHE_PREFIX_COURSE + branch_id),
       cacheService.get(LIST_CACHE_PREFIX_SERVICE + branch_id)
@@ -49,16 +55,21 @@ exports.getPaymentsByBranch = async (req, res, next) => {
       courses = courses.map(toPlain);
       services = services.map(toPlain);
 
-      // Set caches (ignore failures)
       await Promise.all([
-        cacheService.set(LIST_CACHE_PREFIX_COURSE + branch_id, courses).catch(() => {}),
-        cacheService.set(LIST_CACHE_PREFIX_SERVICE + branch_id, services).catch(() => {})
+        cacheService.set(LIST_CACHE_PREFIX_COURSE + branch_id, courses).catch(() => { }),
+        cacheService.set(LIST_CACHE_PREFIX_SERVICE + branch_id, services).catch(() => { })
       ]);
     }
 
+    // Combine and add payment_type property
+    const combinedPayments = addType(courses, 'course').concat(addType(services, 'service'));
+
+    // Sort by updatedAt date
+    combinedPayments.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+
     res.json({
       success: true,
-      data: { courses, services },
+      data: combinedPayments,
     });
   } catch (err) {
     next(err);
@@ -73,7 +84,6 @@ exports.getPaymentsByAdmissionId = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Only Active User can view payment.' });
     }
 
-    // Try cache separate for course and service admissions
     const [cachedCourses, cachedServices] = await Promise.all([
       cacheService.get(ADMISSION_CACHE_PREFIX_COURSE + admission_id),
       cacheService.get(ADMISSION_CACHE_PREFIX_SERVICE + admission_id)
@@ -88,21 +98,29 @@ exports.getPaymentsByAdmissionId = async (req, res, next) => {
         PaymentCourse.findAll({ where: { admission_id, status: { [Op.ne]: STATUS.DELETE } } }),
         PaymentService.findAll({ where: { admission_id, status: { [Op.ne]: STATUS.DELETE } } }),
       ]);
+
       if (!courses.length && !services.length) {
-         return res.status(404).json({ success: false, message: 'No payments found for this admission.' });
+        return res.status(404).json({ success: false, message: 'No payments found for this admission.' });
       }
+
       courses = courses.map(toPlain);
       services = services.map(toPlain);
 
       await Promise.all([
-        cacheService.set(ADMISSION_CACHE_PREFIX_COURSE + admission_id, courses).catch(() => {}),
-        cacheService.set(ADMISSION_CACHE_PREFIX_SERVICE + admission_id, services).catch(() => {})
+        cacheService.set(ADMISSION_CACHE_PREFIX_COURSE + admission_id, courses).catch(() => { }),
+        cacheService.set(ADMISSION_CACHE_PREFIX_SERVICE + admission_id, services).catch(() => { })
       ]);
     }
 
+    // Combine and add payment_type property
+    const combinedPayments = addType(courses, 'course').concat(addType(services, 'service'));
+
+    // Sort by updatedAt date
+    combinedPayments.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+
     res.json({
       success: true,
-      data: { courses, services }
+      data: combinedPayments,
     });
   } catch (err) {
     next(err);
@@ -127,11 +145,12 @@ exports.getPaymentById = async (req, res, next) => {
     const cacheKey = (type === 'service' ? CACHE_PREFIX_SERVICE : CACHE_PREFIX_COURSE) + id;
 
     let payment = await cacheService.get(cacheKey);
+
     if (!payment) {
       const dbPayment = await Model.findOne({ where: { [pkField]: id, status: { [Op.ne]: STATUS.DELETE } } });
       if (!dbPayment) return res.status(404).json({ success: false, message: 'Payment not found' });
       payment = toPlain(dbPayment);
-      await cacheService.set(cacheKey, payment).catch(() => {});
+      await cacheService.set(cacheKey, payment).catch(() => { });
     }
 
     res.json({ success: true, data: payment });
@@ -169,9 +188,9 @@ exports.deletePaymentById = async (req, res, next) => {
     const admissionCacheKey = type === 'service' ? ADMISSION_CACHE_PREFIX_SERVICE + admissionId : ADMISSION_CACHE_PREFIX_COURSE + admissionId;
 
     await Promise.all([
-      cacheService.del(cacheKey).catch(() => {}),
-      cacheService.del(listCacheKey).catch(() => {}),
-      cacheService.del(admissionCacheKey).catch(() => {}),
+      cacheService.del(cacheKey).catch(() => { }),
+      cacheService.del(listCacheKey).catch(() => { }),
+      cacheService.del(admissionCacheKey).catch(() => { }),
     ]);
 
     res.json({ success: true, message: 'Payment soft deleted successfully.' });

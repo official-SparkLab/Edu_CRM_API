@@ -69,7 +69,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // === 1) GLOBAL RATE LIMITER (apply to all requests) ===
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
-  max: 100,                  // limit each IP to 100 requests per window
+  max: 1000,                  // limit each IP to 1000 requests per window
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 app.use(globalLimiter);
