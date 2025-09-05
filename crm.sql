@@ -276,6 +276,7 @@ CREATE TABLE `tbl_admission_course` (
   `fees` VARCHAR(255) NOT NULL,
   `batch_id` INT DEFAULT NULL,
   `admission_id` INT DEFAULT NULL,
+  `section_id` INT DEFAULT NULL,
   `branch_id` INT DEFAULT NULL,
   `added_by` INT DEFAULT NULL,
   `status` INT DEFAULT 1,
@@ -294,6 +295,10 @@ CREATE TABLE `tbl_admission_course` (
     FOREIGN KEY (`admission_id`) REFERENCES `tbl_admission` (`admission_id`)
     ON UPDATE CASCADE ON DELETE SET NULL,
 
+  CONSTRAINT `fk_adm_course_section`
+    FOREIGN KEY (`section_id`) REFERENCES `tbl_section` (`section_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
   CONSTRAINT `fk_adm_course_branch`
     FOREIGN KEY (`branch_id`) REFERENCES `tbl_branch` (`branch_id`)
     ON UPDATE CASCADE ON DELETE SET NULL,
@@ -310,6 +315,7 @@ CREATE TABLE `tbl_admission_service` (
   `service_id` INT DEFAULT NULL,
   `fees` VARCHAR(255) NOT NULL,
   `admission_id` INT DEFAULT NULL,
+  `section_id` INT DEFAULT NULL,
   `branch_id` INT DEFAULT NULL,
   `added_by` INT DEFAULT NULL,
   `status` INT DEFAULT 1,
@@ -322,6 +328,10 @@ CREATE TABLE `tbl_admission_service` (
 
   CONSTRAINT `fk_adm_service_admission`
     FOREIGN KEY (`admission_id`) REFERENCES `tbl_admission` (`admission_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
+  CONSTRAINT `fk_adm_service_section`
+    FOREIGN KEY (`section_id`) REFERENCES `tbl_section` (`section_id`)
     ON UPDATE CASCADE ON DELETE SET NULL,
 
   CONSTRAINT `fk_adm_service_branch`
