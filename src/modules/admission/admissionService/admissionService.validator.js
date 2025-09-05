@@ -2,12 +2,14 @@ const { body } = require('express-validator');
 
 const createAdmissionService = [
   body('service_id').notEmpty().isNumeric().withMessage('Service id is required'),
+  body('section_id').notEmpty().isNumeric().withMessage('Section id is required'),
   body('admission_id').notEmpty().isNumeric().withMessage('Admission id is required'),
   body('branch_id').notEmpty().isNumeric().withMessage('Branch id is required'),
 ];
 
 const updateAdmissionService = [
   body('service_id').notEmpty().isNumeric().withMessage('Service id is required'),
+  body('section_id').notEmpty().isNumeric().withMessage('Section id is required'),
   body('admission_id').notEmpty().isNumeric().withMessage('Admission id is required'),
   body('branch_id').notEmpty().isNumeric().withMessage('Branch id is required'),
 ];

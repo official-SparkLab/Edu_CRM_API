@@ -31,6 +31,16 @@ const AdmissionService = db.define('AdmissionService', {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   },
+  section_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tbl_section',
+      key: 'section_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  },
   branch_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
