@@ -13,5 +13,6 @@ router.post('/',authenticate, upload.none(), admissionServiceValidator.createAdm
 // router.get('/:id',authenticate, admissionServiceController.getAdmissionServiceById);
 router.put('/:id',authenticate, upload.none(), admissionServiceValidator.updateAdmissionService, validate, admissionServiceController.updateAdmissionService);
 router.delete('/:id',authenticate, admissionServiceController.deleteAdmissionService);
+router.put('/status/:id',authenticate, admissionServiceController.changeStatus);
 
 module.exports = router; 

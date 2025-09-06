@@ -27,9 +27,24 @@ exports.getAdmission = async (req, res, next) => {
     const admissions = await Admission.findAll({
       where: { status: STATUS.ACTIVE, branch_id },
       include: [
-        { model: Document, as: 'documents' },
-        { model: AdmissionCourse, as: 'courses' },
-        { model: AdmissionService, as: 'services' },
+        { 
+          model: Document, 
+          as: 'documents',
+          where: { status: STATUS.ACTIVE },
+          required: false // Let admissions be shown even if no docs exist
+        },
+        { 
+          model: AdmissionCourse,
+          as: 'courses',
+          where: { status: STATUS.ACTIVE },
+          required: false
+        },
+        { 
+          model: AdmissionService,
+          as: 'services',
+          where: { status: STATUS.ACTIVE },
+          required: false
+        },
         // { model: Branch, as: 'branch' },
         // { model: User, as: 'addedBy', attributes: ['reg_id', 'user_name', 'email'] }
       ]
@@ -47,9 +62,24 @@ exports.getAdmissionById = async (req, res, next) => {
     const admission = await Admission.findOne({
       where: { admission_id: req.params.id, status: STATUS.ACTIVE },
       include: [
-        { model: Document, as: 'documents' },
-        { model: AdmissionCourse, as: 'courses' },
-        { model: AdmissionService, as: 'services' },
+        { 
+          model: Document, 
+          as: 'documents',
+          where: { status: STATUS.ACTIVE },
+          required: false
+        },
+        { 
+          model: AdmissionCourse,
+          as: 'courses',
+          where: { status: STATUS.ACTIVE },
+          required: false
+        },
+        { 
+          model: AdmissionService,
+          as: 'services',
+          where: { status: STATUS.ACTIVE },
+          required: false
+        },
       ]
     });
 
