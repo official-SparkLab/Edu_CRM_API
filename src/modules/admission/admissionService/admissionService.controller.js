@@ -192,3 +192,39 @@ exports.deleteAdmissionService = async (req, res, next) => {
     next(err);
   }
 };
+
+
+// ======================== CHANGE STATUS ========================
+// Change Status
+exports.changeStatus = async (req, res, next) => {
+  try {
+
+    // Only active allowed
+    if ([STATUS.INACTIVE, STATUS.DELETE].includes(req.user.status)) {
+      return res.status(403).json({ success: false, message: 'Only Active User can change admission service status.' });
+    }
+
+    const { status } = req.body;
+    const adm_service_id = req.params.id;
+
+    if (![STATUS.ACTIVE, STATUS.DELETE].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value.' });
+    }
+
+    const admissionService = await AdmissionService.findOne({ where: { adm_service_id } });
+    if (!admissionService) {
+      return res.status(404).json({ success: false, message: 'AdmissionService not found' });
+    }
+
+    admissionService.status = status;
+    await admissionService.save();
+
+    // Invalidate cache
+    await cacheService.del(`${CACHE_PREFIX}${admissionService.adm_service_id}`);
+    await cacheService.del(`${LIST_CACHE_PREFIX}${admissionService.branch_id}`);
+
+    res.json({ success: true, data: admissionService });
+  } catch (err) {
+    next(err);
+  }
+};
