@@ -27,6 +27,16 @@ const PaymentCourse = db.define('PaymentCourse', {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   },
+  section_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'tbl_section',
+      key: 'section_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  },
   payment_date: {
     type: DataTypes.DATEONLY,
     allowNull: false

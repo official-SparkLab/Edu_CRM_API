@@ -349,6 +349,7 @@ CREATE TABLE `tbl_payment_course` (
   `pay_course_id` INT AUTO_INCREMENT PRIMARY KEY,
   `admission_id` INT NULL,
   `adm_course_id` INT,
+  `section_id` INT NULL,
   `payment_date` DATE NOT NULL,
   `amount_paid` VARCHAR(255) NOT NULL,
   `payment_mode` VARCHAR(255) NOT NULL,
@@ -372,6 +373,10 @@ CREATE TABLE `tbl_payment_course` (
     ON UPDATE CASCADE
     ON DELETE SET NULL,
 
+  CONSTRAINT `fk_payment_course_section`
+    FOREIGN KEY (`section_id`) REFERENCES `tbl_section` (`section_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
+
   CONSTRAINT `fk_payment_course_branch`
     FOREIGN KEY (`branch_id`)
     REFERENCES `tbl_branch`(`branch_id`)
@@ -388,6 +393,7 @@ CREATE TABLE `tbl_payment_course` (
 CREATE TABLE `tbl_payment_service` (
   `pay_service_id` INT AUTO_INCREMENT PRIMARY KEY,
   `admission_id` INT NULL,
+  `section_id` INT NULL,
   `payment_date` DATE NOT NULL,
   `amount_paid` VARCHAR(255) NOT NULL,
   `payment_mode` VARCHAR(255) NOT NULL,
@@ -404,6 +410,10 @@ CREATE TABLE `tbl_payment_service` (
     REFERENCES `tbl_admission`(`admission_id`)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
+
+  CONSTRAINT `fk_payment_service_section`
+    FOREIGN KEY (`section_id`) REFERENCES `tbl_section` (`section_id`)
+    ON UPDATE CASCADE ON DELETE SET NULL,
 
   CONSTRAINT `fk_payment_service_branch`
     FOREIGN KEY (`branch_id`)

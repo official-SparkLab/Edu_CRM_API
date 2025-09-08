@@ -30,7 +30,7 @@ exports.createPaymentCourse = async (req, res, next) => {
     }
 
     const paymentCourseData = { ...req.body };
-    const { branch_id, admission_id, adm_course_id, adm_service_id } =
+    const { branch_id, admission_id, adm_course_id} =
       paymentCourseData;
     // Validate exactly one of adm_course_id or adm_service_id must be present
     if (!adm_course_id) {
